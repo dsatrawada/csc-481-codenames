@@ -2,4 +2,4 @@
 CSC 481 Project
 
 # Usage
-python3 codenames.py
+python3 codenames_sim.py
