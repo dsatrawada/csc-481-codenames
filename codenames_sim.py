@@ -4,10 +4,12 @@ from typing import List, Tuple, Iterable
 
 class Reader:
     def read_picks(
-        self, words: List[str], my_words: Iterable[str], cnt: int
-    ) -> List[str]:
+        self, words: List[str], my_words: set[str], opn_words: set[str], 
+            neutral_words: set[str], d_words: set[str],
+            cnt: int
+    ) -> None:
         """
-        Query the user for guesses.
+        Query the user for guesses and update the board.
         :param words: Words the user can choose from.
         :param my_words: Correct words.
         :param cnt: Number of guesses the user has.
@@ -22,24 +24,50 @@ class Reader:
         :param nrows: Number of rows to print.
         """
         raise NotImplementedError
+    def printStats(self, my_words: set[str], opn_words: set[str], 
+            neutral_words: set[str], d_words: set[str], debug: bool):
+        
+        raise NotImplementedError
 
 
 class TerminalReader(Reader):
     def read_picks(
-        self, words: List[str], my_words: Iterable[str], cnt: int
-    ) -> List[str]:
-        picks = []
-        while len(picks) < cnt:
+    self, words: List[str], my_words: set[str], opn_words: set[str], 
+        neutral_words: set[str], d_words: set[str],
+        cnt: int
+    ) -> None:
+        picksCount = 0
+        while True:
             guess = None
-            while guess not in words:
+            while guess not in words or guess in {"-O-", "-N-", "-✓-"}:
                 guess = input("Your guess: ").strip().upper()
-            picks.append(guess)
             if guess in my_words:
-                print("Correct!")
+                print("\nCorrect!\n")
+                my_words.remove(guess)
+                words[words.index(guess)] = "-✓-"
+                picksCount += 1
             else:
-                print("Wrong :(")
+                if guess in d_words:
+                    print("\nWrong - Assassin Word x_x\n")
+                    exit(0)
+
+                if guess in neutral_words:
+                    print("\nWrong - Neutral Word :(\n")
+                    neutral_words.remove(guess)
+                    words[words.index(guess)] = "-N-"
+                    break
+
+                if guess in opn_words:
+                    print("\nWrong - Opponent Word :(\n")
+                    opn_words.remove(guess)
+                    words[words.index(guess)] = "-O-"
+                    break
+            
+            if (picksCount > cnt):
+                print("\nNo more attempts\n")
                 break
-        return picks
+            
+       
 
     def print_words(self, words: List[str], nrows: int):
         longest = max(map(len, words))
@@ -49,6 +77,20 @@ class TerminalReader(Reader):
                 print(word.rjust(longest), end=" ")
             print()
         print()
+
+
+    def printStats(self, my_words: set[str], opn_words: set[str], 
+            neutral_words: set[str], d_words: set[str], debug: bool):
+        
+        print("\n----------------------------------------------------------------")
+        print("AGENT WORDS: %d               OPPONENT WORDS: %d" % (len(my_words), len(opn_words)))
+        if debug:
+            print("\nDebugInfo:")
+            print("     AGENT WORDS:", my_words)
+            print("     OPPONENT WORDS:", opn_words)
+            print("     NEUTRAL WORDS:", neutral_words)
+            print("     DEAD WORD:", d_words)
+        print("---------------------------------------------------------------")
 
 
 class Codenames:
@@ -80,8 +122,8 @@ class Codenames:
         print("Ready!")
 
     def find_clue(
-        self, words: List[str], a_words: List[str], o_words: List[str], 
-            n_words: List[str], d_words: List[str], black_list: Iterable[str]) -> Tuple[str, float, List[str]]:
+        self, words: set[str], a_words: set[str], o_words: set[str], 
+            n_words: set[str], d_words: set[str], black_list: set[str]) -> Tuple[str, List[str]]:
         """
         :param words: Words on the board.
         :param my_words: Words we want to guess.
@@ -93,7 +135,7 @@ class Codenames:
         print("Thinking", end="", flush=True)
 
         best_clue = "birdie"
-        best_guess = ["BADMINTON", "EAGLE"]
+        best_guess = ["...", "xxxx"]
 
         # After printing '.'s with end="" we need a clean line.
         print()
@@ -104,45 +146,63 @@ class Codenames:
         """
         Play a complete game, with the robot being the spymaster.
         """
-        words = random.sample(self.codenames, self.cnt_rows * self.cnt_cols)
-        words_c = words.copy()
+        # words = random.sample(self.codenames, self.cnt_rows * self.cnt_cols)
+        # words_c = words.copy()
 
-        agent_words = set(random.sample(words_c, self.cnt_agents))
-        for word in agent_words:
-            words_c.remove(word)
+        # agent_words = set(random.sample(words_c, self.cnt_agents))
+        # for word in agent_words:
+        #     words_c.remove(word)
 
-        opponent_words = set(random.sample(words_c, self.cnt_opponents))
-        for word in opponent_words:
-            words_c.remove(word)
+        # opponent_words = set(random.sample(words_c, self.cnt_opponents))
+        # for word in opponent_words:
+        #     words_c.remove(word)
 
-        neutral_words = set(random.sample(words_c, self.cnt_neutral))
-        for word in neutral_words:
-            words_c.remove(word)
+        # neutral_words = set(random.sample(words_c, self.cnt_neutral))
+        # for word in neutral_words:
+        #     words_c.remove(word)
         
-        d_words = set(random.sample(words_c, self.cnt_death))
+        # d_words = set(random.sample(words_c, self.cnt_death))
+
+        # used_clues = set(words)
+
+        words = random.sample(self.codenames, self.cnt_rows * self.cnt_cols)
+        words_c = set(words.copy())
+        
+        agent_words = set(random.sample(list(words_c), self.cnt_agents))
+        words_c.difference_update(agent_words)
+        
+        opponent_words = set(random.sample(list(words_c), self.cnt_opponents))
+        words_c.difference_update(opponent_words)
+
+        neutral_words = set(random.sample(list(words_c), self.cnt_neutral))
+        words_c.difference_update(neutral_words)
+
+        d_words = set(random.sample(list(words_c), self.cnt_death))
 
         used_clues = set(words)
 
 
-        while agent_words:
+
+        while agent_words and opponent_words:
+            reader.printStats(agent_words, opponent_words, neutral_words, d_words, debug=True)
             reader.print_words(words, nrows=self.cnt_rows)
 
             clue, group = self.find_clue(
-                words, list(agent_words), list(opponent_words), list(neutral_words), list(d_words), used_clues)
+                words, agent_words, opponent_words, neutral_words, d_words, used_clues)
             # Save the clue, so we don't use it again
             used_clues.add(clue)
 
             print()
             print(
-                'Clue: "{} {}", remaining words {})'.format(
-                    clue, len(group), len(agent_words)
-                )
+                'Clue: "{} {}"'.format(
+                    clue, len(group))
             )
             print()
-            for pick in reader.read_picks(words, agent_words, len(group)):
-                words[words.index(pick)] = "---"
-                if pick in agent_words:
-                    agent_words.remove(pick)
+            # for pick in reader.read_picks(words, agent_words, len(group)):
+            #     words[words.index(pick)] = "---"
+            #     if pick in agent_words:
+            #         agent_words.remove(pick)
+            reader.read_picks(words, agent_words, opponent_words, neutral_words, d_words, len(group))
 
 
 def main():
