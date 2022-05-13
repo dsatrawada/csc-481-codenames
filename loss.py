@@ -157,6 +157,11 @@ def print_tree(loss_tree: LossNode) -> None:
 
 
 if __name__ == '__main__':
-    prob_func = lambda x: x 
-    print(loss(8, [0.1, 1, 0.1], [0.1, 0.2], [0.1, 0.1, 0.1], 0.2, prob_func))
+    print(loss(
+            max_words=8, 
+            a_sim=[0.1, 1, 0.1, 0.3, 0.3, 0.4, 0.8, 0.1, 1], 
+            o_sim=[0.1, 0.2, 0.3, 0.4, 0.1, 0.1, 0.3], 
+            n_sim=[0.1, 0.1, 0.1, 0.3, 0.4, 0.8, 0.4], 
+            l_sim=0.2, 
+            prob_func=lambda x: x))
     
