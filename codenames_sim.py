@@ -26,7 +26,7 @@ class Reader:
         """
         raise NotImplementedError
     def print_stats(self, my_words: set[str], opn_words: set[str],
-                   neutral_words: set[str], d_words: set[str], debug: bool):
+                    neutral_words: set[str], d_words: set[str], debug: bool):
 
         raise NotImplementedError
 
@@ -90,7 +90,7 @@ class TerminalReader(Reader):
         print()
 
     def print_stats(self, my_words: set[str], opn_words: set[str],
-                   neutral_words: set[str], d_words: set[str], debug: bool):
+                    neutral_words: set[str], d_words: set[str], debug: bool):
 
         print("\n----------------------------------------------------------------")
         print("AGENT WORDS: %d               OPPONENT WORDS: %d" %
@@ -133,7 +133,7 @@ class Codenames:
         print("Ready!")
 
     def make_guess(
-        self, clue: str, choices: List[str]) -> str:
+            self, clue: str, choices: List[str]) -> str:
         """
         :param clue: Clue from the spymaster.
         :param choices: Choices on the table.
@@ -149,7 +149,7 @@ class Codenames:
         print()
 
         return best_guess
-    
+
     def find_clue(
         self, words: set[str], a_words: set[str], o_words: set[str],
             n_words: set[str], d_words: set[str], used_clue: set[str]) -> Tuple[str, List[str]]:
@@ -199,7 +199,7 @@ class Codenames:
 
         while agent_words and opponent_words:
             reader.print_stats(agent_words, opponent_words,
-                              neutral_words, death_words, debug=True)
+                               neutral_words, death_words, debug=True)
             reader.print_words(words, nrows=self.cnt_rows)
 
             clue, group = self.find_clue(
@@ -232,17 +232,19 @@ class Codenames:
 
         while any(w not in picked for w in agent_words):
             reader.print_stats(agent_words, opponent_words,
-                              neutral_words, death_words, debug=True)
+                               neutral_words, death_words, debug=True)
             reader.print_words(words, nrows=self.cnt_rows)
             print("Your words:", ", ".join(
                 w for w in agent_words if w not in picked))
-            clue, cnt = reader.read_clue(self.codenames) # TODO: change word bank for clues?
+            # TODO: change word bank for clues?
+            clue, cnt = reader.read_clue(self.codenames)
             for _ in range(cnt + 1):
-                guess = self.make_guess(clue, [w for w in words if w not in picked])
+                guess = self.make_guess(
+                    clue, [w for w in words if w not in picked])
                 picked.append(guess)
-                answer = input("I guess {}? [y/n]: ".format(guess))
-                if answer == "n":
-                    print("Sorry about that.")
+                print("I guess {}!".format(guess))
+                if guess not in agent_words or guess in picked:
+                    print("I got it wrong. Sorry about that!")
                     break
             else:
                 print("I got them all!")
