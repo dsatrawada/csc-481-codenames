@@ -1,10 +1,11 @@
 import random
 from typing import List, Tuple, Iterable
+import re
 
 
 class Reader:
     def read_picks(
-        self, words: List[str], my_words: set[str], opn_words: set[str], 
+        self, words: List[str], my_words: set[str], opn_words: set[str],
             neutral_words: set[str], d_words: set[str],
             cnt: int
     ) -> None:
@@ -24,15 +25,15 @@ class Reader:
         :param nrows: Number of rows to print.
         """
         raise NotImplementedError
-    def printStats(self, my_words: set[str], opn_words: set[str], 
-            neutral_words: set[str], d_words: set[str], debug: bool):
-        
+    def print_stats(self, my_words: set[str], opn_words: set[str],
+                   neutral_words: set[str], d_words: set[str], debug: bool):
+
         raise NotImplementedError
 
 
 class TerminalReader(Reader):
     def read_picks(
-    self, words: List[str], my_words: set[str], opn_words: set[str], 
+        self, words: List[str], my_words: set[str], opn_words: set[str],
         neutral_words: set[str], d_words: set[str],
         cnt: int
     ) -> None:
@@ -62,12 +63,22 @@ class TerminalReader(Reader):
                     opn_words.remove(guess)
                     words[words.index(guess)] = "-O-"
                     break
-            
+
             if (picksCount > cnt):
                 print("\nNo more attempts\n")
                 break
-            
-       
+
+    def read_clue(self, word_set) -> Tuple[str, int]:
+        while True:
+            inp = input("Clue (e.g. 'car 2'): ").upper()
+            match = re.match("(\w+)\s+(\d+)", inp)
+
+            if match:
+                clue, cnt = match.groups()
+                if clue not in word_set:
+                    print("I don't understand that word.")
+                    continue
+                return clue, int(cnt)
 
     def print_words(self, words: List[str], nrows: int):
         longest = max(map(len, words))
@@ -78,18 +89,18 @@ class TerminalReader(Reader):
             print()
         print()
 
+    def print_stats(self, my_words: set[str], opn_words: set[str],
+                   neutral_words: set[str], d_words: set[str], debug: bool):
 
-    def printStats(self, my_words: set[str], opn_words: set[str], 
-            neutral_words: set[str], d_words: set[str], debug: bool):
-        
         print("\n----------------------------------------------------------------")
-        print("AGENT WORDS: %d               OPPONENT WORDS: %d" % (len(my_words), len(opn_words)))
+        print("AGENT WORDS: %d               OPPONENT WORDS: %d" %
+              (len(my_words), len(opn_words)))
         if debug:
             print("\nDebugInfo:")
             print("     AGENT WORDS:", my_words)
             print("     OPPONENT WORDS:", opn_words)
             print("     NEUTRAL WORDS:", neutral_words)
-            print("     DEAD WORD:", d_words)
+            print("     DEATH WORDS:", d_words)
         print("---------------------------------------------------------------")
 
 
@@ -121,16 +132,33 @@ class Codenames:
 
         print("Ready!")
 
+    def make_guess(
+        self, clue: str, choices: List[str]) -> str:
+        """
+        :param clue: Clue from the spymaster.
+        :param choices: Choices on the table.
+        :return: Which choice to go for.
+        """
+        # TODO
+
+        print("Thinking", end="", flush=True)
+
+        best_guess = "xxxx"
+
+        # After printing '.'s with end="" we need a clean line.
+        print()
+
+        return best_guess
+    
     def find_clue(
-        self, words: set[str], a_words: set[str], o_words: set[str], 
-            n_words: set[str], d_words: set[str], black_list: set[str]) -> Tuple[str, List[str]]:
+        self, words: set[str], a_words: set[str], o_words: set[str],
+            n_words: set[str], d_words: set[str], used_clue: set[str]) -> Tuple[str, List[str]]:
         """
         :param words: Words on the board.
-        :param my_words: Words we want to guess.
-        :param black_list: Clues we are not allowed to give.
+        :param used_clues: Clues we are not allowed to give.
         :return: (The best clue, the score, the words we expect to be guessed)
         """
-        #TODO
+        # TODO
 
         print("Thinking", end="", flush=True)
 
@@ -142,53 +170,40 @@ class Codenames:
 
         return best_clue, best_guess
 
-    def play_spymaster(self, reader: Reader):
-        """
-        Play a complete game, with the robot being the spymaster.
-        """
-        # words = random.sample(self.codenames, self.cnt_rows * self.cnt_cols)
-        # words_c = words.copy()
-
-        # agent_words = set(random.sample(words_c, self.cnt_agents))
-        # for word in agent_words:
-        #     words_c.remove(word)
-
-        # opponent_words = set(random.sample(words_c, self.cnt_opponents))
-        # for word in opponent_words:
-        #     words_c.remove(word)
-
-        # neutral_words = set(random.sample(words_c, self.cnt_neutral))
-        # for word in neutral_words:
-        #     words_c.remove(word)
-        
-        # d_words = set(random.sample(words_c, self.cnt_death))
-
-        # used_clues = set(words)
-
-        words = random.sample(self.codenames, self.cnt_rows * self.cnt_cols)
+    def initialize_game(self, words):
         words_c = set(words.copy())
-        
+
         agent_words = set(random.sample(list(words_c), self.cnt_agents))
         words_c.difference_update(agent_words)
-        
+
         opponent_words = set(random.sample(list(words_c), self.cnt_opponents))
         words_c.difference_update(opponent_words)
 
         neutral_words = set(random.sample(list(words_c), self.cnt_neutral))
         words_c.difference_update(neutral_words)
 
-        d_words = set(random.sample(list(words_c), self.cnt_death))
+        death_words = set(random.sample(list(words_c), self.cnt_death))
 
         used_clues = set(words)
 
+        return agent_words, opponent_words, neutral_words, death_words, used_clues
 
+    def play_spymaster(self, reader: Reader):
+        """
+        Play a complete game, with the robot being the spymaster.
+        """
+
+        words = random.sample(self.codenames, self.cnt_rows * self.cnt_cols)
+        agent_words, opponent_words, neutral_words, death_words, used_clues = self.initialize_game(
+            words)
 
         while agent_words and opponent_words:
-            reader.printStats(agent_words, opponent_words, neutral_words, d_words, debug=True)
+            reader.print_stats(agent_words, opponent_words,
+                              neutral_words, death_words, debug=True)
             reader.print_words(words, nrows=self.cnt_rows)
 
             clue, group = self.find_clue(
-                words, agent_words, opponent_words, neutral_words, d_words, used_clues)
+                words, agent_words, opponent_words, neutral_words, death_words, used_clues)
             # Save the clue, so we don't use it again
             used_clues.add(clue)
 
@@ -202,19 +217,57 @@ class Codenames:
             #     words[words.index(pick)] = "---"
             #     if pick in agent_words:
             #         agent_words.remove(pick)
-            reader.read_picks(words, agent_words, opponent_words, neutral_words, d_words, len(group))
+            reader.read_picks(words, agent_words, opponent_words,
+                              neutral_words, death_words, len(group))
+
+    def play_agent(self, reader: Reader):
+        """
+        Play a complete game, with the robot being the agent.
+        """
+
+        words = random.sample(self.codenames, self.cnt_rows * self.cnt_cols)
+        agent_words, opponent_words, neutral_words, death_words, used_clues = self.initialize_game(
+            words)
+        picked = []
+
+        while any(w not in picked for w in agent_words):
+            reader.print_stats(agent_words, opponent_words,
+                              neutral_words, death_words, debug=True)
+            reader.print_words(words, nrows=self.cnt_rows)
+            print("Your words:", ", ".join(
+                w for w in agent_words if w not in picked))
+            clue, cnt = reader.read_clue(self.codenames) # TODO: change word bank for clues?
+            for _ in range(cnt + 1):
+                guess = self.make_guess(clue, [w for w in words if w not in picked])
+                picked.append(guess)
+                answer = input("I guess {}? [y/n]: ".format(guess))
+                if answer == "n":
+                    print("Sorry about that.")
+                    break
+            else:
+                print("I got them all!")
 
 
 def main():
     cn = Codenames()
     cn.load("word_bank.txt")
     reader = TerminalReader()
+
     while True:
         try:
-            cn.play_spymaster(reader)
+            mode = input("\nWill you be agent or spymaster?: ")
         except KeyboardInterrupt:
             print("\nGoodbye!")
             break
+
+        try:
+            if mode == "spymaster":
+                cn.play_agent(reader)
+            elif mode == "agent":
+                cn.play_spymaster(reader)
+        except KeyboardInterrupt:
+            # Catch interrupts from play functions
+            pass
 
 
 main()
