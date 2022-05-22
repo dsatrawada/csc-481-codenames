@@ -158,7 +158,7 @@ def print_tree(loss_tree: LossNode) -> None:
 
 if __name__ == '__main__':
     print(loss(
-            max_words=8, 
+            max_words=4, 
             a_sim=[0.1, 1, 0.1, 0.3, 0.3, 0.4, 0.8, 0.1, 1], 
             o_sim=[0.1, 0.2, 0.3, 0.4, 0.1, 0.1, 0.3], 
             n_sim=[0.1, 0.1, 0.1, 0.3, 0.4, 0.8, 0.4], 
