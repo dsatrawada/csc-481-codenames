@@ -59,7 +59,7 @@ def loss(max_words: int, a_sim: Iterable[float], o_sim: Iterable[float],
             sum_prob_other, other_scores, prob_func)
 
     scores = []
-    for i in range(max_depth + 1):
+    for i in range(1, max_depth + 1):
         memoized_scores = {}
         scores.append(get_scores(loss_tree, i))
     return scores
