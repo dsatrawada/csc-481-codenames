@@ -1,14 +1,14 @@
 import sys, os
 
-import re
-import nltk
+# import re
+# import nltk
 import json
-from nltk.corpus import wordnet as wn
-nltk.download('wordnet')
-nltk.download('omw-1.4')
+# from nltk.corpus import wordnet as wn
+# nltk.download('wordnet')
+# nltk.download('omw-1.4')
 
-from tqdm import tqdm
-from typing import Iterable
+# from tqdm import tqdm
+
 
 class HypernymSimilarity:
 
@@ -105,49 +105,49 @@ def base_similarity(w1: str, w2: str) -> float:
     return sim_sum / sim_count, sim_min, sim_max
     
 
-def create_cache(word_bank: str, board_bank: str) -> None:
-    '''
-    Creates the similarity cache for Hypernym_Similarity
-    :param word_bank: file name of the overall word bank
-    :param board_bank: file name of the boark bank of words
-    '''
-    cache_loc = 'similarities'
-    if not os.path.exists(cache_loc):
-        os.makedirs(cache_loc)
-    with open(word_bank, 'r') as fin:
-        wb_contents = fin.read()
-    with open(board_bank, 'r') as fin:
-        bb_contents = fin.read()
-    wbw = re.findall(r'[A-z]+', wb_contents)
-    bbw = re.findall(r'[A-z]+', bb_contents)
+# def create_cache(word_bank: str, board_bank: str) -> None:
+#     '''
+#     Creates the similarity cache for Hypernym_Similarity
+#     :param word_bank: file name of the overall word bank
+#     :param board_bank: file name of the boark bank of words
+#     '''
+#     cache_loc = 'similarities'
+#     if not os.path.exists(cache_loc):
+#         os.makedirs(cache_loc)
+#     with open(word_bank, 'r') as fin:
+#         wb_contents = fin.read()
+#     with open(board_bank, 'r') as fin:
+#         bb_contents = fin.read()
+#     wbw = re.findall(r'[A-z]+', wb_contents)
+#     bbw = re.findall(r'[A-z]+', bb_contents)
 
-    sim = {}
-    for w1 in tqdm(wbw):
-        for w2 in bbw:
-            str_id = gen_id(w1, w2)
-            if str_id in sim:
-                continue
-            sim[str_id] = {}
-            avg_sim, min_sim, max_sim = base_similarity(w1, w2)
-            sim[str_id]['avg'] = avg_sim
-            sim[str_id]['min'] = min_sim
-            sim[str_id]['max'] = max_sim
+#     sim = {}
+#     for w1 in tqdm(wbw):
+#         for w2 in bbw:
+#             str_id = gen_id(w1, w2)
+#             if str_id in sim:
+#                 continue
+#             sim[str_id] = {}
+#             avg_sim, min_sim, max_sim = base_similarity(w1, w2)
+#             sim[str_id]['avg'] = avg_sim
+#             sim[str_id]['min'] = min_sim
+#             sim[str_id]['max'] = max_sim
 
-    with open(os.path.join(cache_loc, 'hyp.json'), 'w') as fout:
-        fout.write(json.dumps(sim))
+#     with open(os.path.join(cache_loc, 'hyp.json'), 'w') as fout:
+#         fout.write(json.dumps(sim))
 
 
-if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        word_bank = os.path.join('words', 'word_bank.txt')
-    else:
-        word_bank = sys.argv[1]
+# if __name__ == '__main__':
+#     if len(sys.argv) < 2:
+#         word_bank = os.path.join('words', 'word_bank.txt')
+#     else:
+#         word_bank = sys.argv[1]
 
-    if len(sys.argv) < 3:
-        board_bank = os.path.join('words', 'board_bank.txt')
-    else:
-        board_bank = sys.argv[2]
-    create_cache(word_bank, board_bank)
+#     if len(sys.argv) < 3:
+#         board_bank = os.path.join('words', 'board_bank.txt')
+#     else:
+#         board_bank = sys.argv[2]
+#     create_cache(word_bank, board_bank)
 
 
 

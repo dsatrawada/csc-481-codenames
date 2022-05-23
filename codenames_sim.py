@@ -1,6 +1,9 @@
+import os
 import random
-from typing import List, Tuple, Iterable
+from typing import List, Tuple
 import re
+from strategy import Strategy
+from hypernym_strategy import HypernymStrategy
 
 
 class Reader:
@@ -30,6 +33,10 @@ class Reader:
 
         raise NotImplementedError
 
+    def read_clue(self, word_set) -> Tuple[str, int]:
+        raise NotImplementedError
+
+
 
 class TerminalReader(Reader):
     def read_picks(
@@ -41,7 +48,7 @@ class TerminalReader(Reader):
         while True:
             guess = None
             while guess not in words or guess in {"-O-", "-N-", "-✓-"}:
-                guess = input("Your guess: ").strip().upper()
+                guess = input("Your guess: ").strip()
             if guess in my_words:
                 print("\nCorrect!\n")
                 my_words.remove(guess)
@@ -188,7 +195,7 @@ class Codenames:
 
         return agent_words, opponent_words, neutral_words, death_words, used_clues
 
-    def play_spymaster(self, reader: Reader):
+    def play_spymaster(self, reader: Reader, strategy: Strategy):
         """
         Play a complete game, with the robot being the spymaster.
         """
@@ -202,25 +209,23 @@ class Codenames:
                                neutral_words, death_words, debug=True)
             reader.print_words(words, nrows=self.cnt_rows)
 
-            clue, group = self.find_clue(
-                words, agent_words, opponent_words, neutral_words, death_words, used_clues)
+            clue, guesses = strategy.find_clue(
+                set(words), agent_words, opponent_words, neutral_words, death_words, used_clues)
             # Save the clue, so we don't use it again
             used_clues.add(clue)
 
             print()
             print(
                 'Clue: "{} {}"'.format(
-                    clue, len(group))
+                    clue, guesses)
             )
             print()
-            # for pick in reader.read_picks(words, agent_words, len(group)):
-            #     words[words.index(pick)] = "---"
-            #     if pick in agent_words:
-            #         agent_words.remove(pick)
-            reader.read_picks(words, agent_words, opponent_words,
-                              neutral_words, death_words, len(group))
 
-    def play_agent(self, reader: Reader):
+
+            reader.read_picks(words, agent_words, opponent_words,
+                              neutral_words, death_words, guesses)
+
+    def play_agent(self, reader: Reader, strategy: Strategy):
         """
         Play a complete game, with the robot being the agent.
         """
@@ -251,10 +256,12 @@ class Codenames:
 
 
 def main():
+  
     cn = Codenames()
-    cn.load("word_bank.txt")
+    cn.load(os.path.join('words', 'board_bank.txt'))
     reader = TerminalReader()
-
+    strategy = HypernymStrategy(0,0, 0, 0)
+    
     while True:
         try:
             mode = input("\nWill you be agent or spymaster?: ")
@@ -264,12 +271,12 @@ def main():
 
         try:
             if mode == "spymaster":
-                cn.play_agent(reader)
+                cn.play_agent(reader, strategy)
             elif mode == "agent":
-                cn.play_spymaster(reader)
+                cn.play_spymaster(reader, strategy)
         except KeyboardInterrupt:
             # Catch interrupts from play functions
             pass
 
-
-main()
+if __name__ == "__main__":
+    main()
