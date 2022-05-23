@@ -12,18 +12,14 @@ from typing import Iterable
 
 class HypernymSimilarity:
 
-    def __init__(self, similarity_type='avg', cache_loc=None):
+    def __init__(self, cache_loc=None):
         '''
         Given two words, this class provides means to find the similarity between
         them by searching in a hash map. The hash map is stored locally in a json
         file. To create the json file, run the main method of this module. The file
         takes around 1.5 hrs to create.
-        :param similarity_type: One of 'min', 'max', or 'avg'. Given two words, this can
-            either return the min, max, or average between the many possible pairs of 
-            synsets between the words
         :param cache_loc: path to the file where the similarities are stored
         '''
-        self.similarity_type = similarity_type
         # Contains a mapping between two words joined by
         # an '_' to their similarity score
         self.sym_map = {}
@@ -33,22 +29,25 @@ class HypernymSimilarity:
         self.sym_map = self.load_map()
 
 
-    def similarity(self, w1: str, w2: str)  -> float:
+    def similarity(self, w1: str, w2: str, sim_type: str)  -> float:
         '''
         Returns the Hypernym Similarity between word1 and
         word2. 
         :param w1: first word of the pair.
         :param w2: second word of the pair.
+        :param sim_type: One of 'min', 'max', or 'avg'. Given two words, this can
+            either return the min, max, or average between the many possible pairs of 
+            synsets between the words
         :returns a float representing the similarity between 
             the two words
         '''
         key = gen_id(w1, w2) 
         if key in self.sym_map:
-            if self.similarity_type == 'avg':
+            if sim_type == 'avg':
                 return self.sym_map[key]['avg']
-            if self.similarity_type == 'min':
+            if sim_type == 'min':
                 return self.sym_map[key]['min']
-            if self.similarity_type == 'max':
+            if sim_type == 'max':
                 return self.sym_map[key]['max']
         raise ValueError('Similarity between ' + w1 + ' and ' + w2 + ' not found.' + \
                 'Consider refreshing the cache by running the main method of hyp_sim.py')
