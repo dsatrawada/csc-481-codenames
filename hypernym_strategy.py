@@ -48,6 +48,7 @@ class HypernymStrategy(Strategy):
             have been given
         :return: (The best clue, the words we expect to be guessed)
         """
+        print("Thinking...")
         max_score = (None, float('inf')* -1,
                      float('-inf') * -1)  # (Word, Optimal Loss Score, # of guesses to be used)
         # n = 0
@@ -80,9 +81,7 @@ class HypernymStrategy(Strategy):
                 score_list) if item == current_max][0] + 1
             if current_max  > max_score[1] :
                 max_score = (word, current_max, max_index)
-            # n += 1
-            # if n == 5:
-            #     break
+
         return (max_score[0], max_score[2])
 
     # def get_utility(self, i_sim: list[int], o_sim: list[int], a_sim: int):

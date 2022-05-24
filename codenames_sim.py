@@ -48,7 +48,11 @@ class TerminalReader(Reader):
         while True:
             guess = None
             while guess not in words or guess in {"-O-", "-N-", "-✓-"}:
-                guess = input("Your guess: ").strip()
+                guess = input("Your guess (P to pass): ").strip()
+                if guess == 'P':
+                    print("\nPass...\n")
+                    return 
+
             if guess in my_words:
                 print("\nCorrect!\n")
                 my_words.remove(guess)
@@ -70,10 +74,12 @@ class TerminalReader(Reader):
                     opn_words.remove(guess)
                     words[words.index(guess)] = "-O-"
                     break
+                
 
             if (picksCount > cnt):
                 print("\nNo more attempts\n")
                 break
+
 
     def read_clue(self, word_set) -> Tuple[str, int]:
         while True:
@@ -132,12 +138,11 @@ class Codenames:
 
     def load(self, word_bank_file):
         # All words that are allowed to go onto the table
-        print("...Loading codenames")
 
         with open(word_bank_file) as f:
             self.codenames = [line.strip() for line in f]
 
-        print("Ready!")
+
 
     def make_guess(
             self, clue: str, choices: List[str]) -> str:
@@ -157,25 +162,25 @@ class Codenames:
 
         return best_guess
 
-    def find_clue(
-        self, words: set[str], a_words: set[str], o_words: set[str],
-            n_words: set[str], d_words: set[str], used_clue: set[str]) -> Tuple[str, List[str]]:
-        """
-        :param words: Words on the board.
-        :param used_clues: Clues we are not allowed to give.
-        :return: (The best clue, the score, the words we expect to be guessed)
-        """
-        # TODO
+    # def find_clue(
+    #     self, words: set[str], a_words: set[str], o_words: set[str],
+    #         n_words: set[str], d_words: set[str], used_clue: set[str]) -> Tuple[str, List[str]]:
+    #     """
+    #     :param words: Words on the board.
+    #     :param used_clues: Clues we are not allowed to give.
+    #     :return: (The best clue, the score, the words we expect to be guessed)
+    #     """
+    #     # TODO
 
-        print("Thinking", end="", flush=True)
+    #     print("Thinking", end="", flush=True)
 
-        best_clue = "birdie"
-        best_guess = ["...", "xxxx"]
+    #     best_clue = "birdie"
+    #     best_guess = ["...", "xxxx"]
 
-        # After printing '.'s with end="" we need a clean line.
-        print()
+    #     # After printing '.'s with end="" we need a clean line.
+    #     print()
 
-        return best_clue, best_guess
+    #     return best_clue, best_guess
 
     def initialize_game(self, words):
         words_c = set(words.copy())
@@ -256,11 +261,12 @@ class Codenames:
 
 
 def main():
-  
+    print("...Loading codenames")
     cn = Codenames()
     cn.load(os.path.join('words', 'board_bank.txt'))
     reader = TerminalReader()
     strategy = HypernymStrategy(0,0, 0, 0)
+    print("Ready!")
     
     while True:
         try:
