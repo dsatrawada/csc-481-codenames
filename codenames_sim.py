@@ -4,7 +4,7 @@ from typing import List, Tuple
 import re
 from strategy import Strategy
 from hypernym_strategy import HypernymStrategy
-
+from combined_strategy import CombinedStrategy
 
 class Reader:
     def read_picks(
@@ -265,7 +265,7 @@ def main():
     cn = Codenames()
     cn.load(os.path.join('words', 'board_bank.txt'))
     reader = TerminalReader()
-    strategy = HypernymStrategy(0,0, 0, 0)
+    strategy = CombinedStrategy(0,0, 0, 0)
     print("Ready!")
     
     while True:

@@ -4,13 +4,14 @@ import re
 from typing import Tuple
 from strategy import Strategy
 from hyp_similarity import HypernymSimilarity
+from mer_holo_similarity import MeronymHolonymSimilarity
 from loss import loss
 import numpy as np
 
-class HypernymStrategy(Strategy):
+class CombinedStrategy(Strategy):
     """
-    The HypernymStrategy class extends the Strategy class and searches for clues
-    by examining only hypernym relationships. 
+    The CombineStrategy class extends the Strategy class and searches for clues
+    by examining meronym +holonym, combined with hyper/hyponym relationships. 
     """
 
     def __init__(self, h0: float, h1: float, h2: float, h3: float):
@@ -28,6 +29,7 @@ class HypernymStrategy(Strategy):
         self.h2 = h2
         self.h3 = h3
         self.hs = HypernymSimilarity("max")
+        self.ms = MeronymHolonymSimilarity("max")
         # Load the wordbank
         word_bank = os.path.join('words', 'word_bank.txt')
         with open(word_bank, 'r') as fin:
@@ -61,20 +63,24 @@ class HypernymStrategy(Strategy):
             n_sim = []
             l_sim = []
             for a_word in a_words:
-                a_sim.append(self.hs.similarity(word, a_word))
+                sim = self.hs.similarity(word, a_word)*0.8 + self.ms.similarity(word, a_word) * 0.2
+                a_sim.append(sim)
 
             for o_word in o_words:
-                o_sim.append(self.hs.similarity(word, o_word))
+                sim = self.hs.similarity(word, o_word)*0.8 + self.ms.similarity(word, o_word) * 0.2
+                o_sim.append(sim)
 
             for n_word in n_words:
-                n_sim.append(self.hs.similarity(word, n_word))
+                sim = self.hs.similarity(word, n_word)*0.8 + self.ms.similarity(word, n_word) * 0.2
+                n_sim.append(sim)
 
             for l_word in d_words:
-                l_sim.append(self.hs.similarity(word, l_word))
+                sim = self.hs.similarity(word, l_word)*0.8 + self.ms.similarity(word, l_word) * 0.2
+                l_sim.append(sim)
             
             
             score_list = loss(3, a_sim, o_sim,
-                              n_sim, l_sim[0], lambda x: np.exp(8*x))
+                              n_sim, l_sim[0], lambda x: np.exp(10*x))
             # print(word, score_list)
             current_max = max(score_list)
             max_index = [index for index, item in enumerate(
