@@ -18,6 +18,16 @@ class Strategy:
         """
         raise NotImplementedError
 
+    def make_guess(
+            self, clue: str, words: set[str]) -> str:
+        """
+        :param clue: Clue provided by human spymaster.
+        :param words: Words on the board tht have not been revealed.
+        :return: The best guess.
+        """
+        raise NotImplementedError
+
+
 
     # def loss(max_words: int, a_sim: Iterable[float], o_sim: Iterable[float], 
     #         n_sim: Iterable[float], l_sim: float) -> Iterable[float]:
