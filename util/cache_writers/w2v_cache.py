@@ -4,7 +4,7 @@ import json
 
 from tqdm import tqdm
 
-from cache import CacheWriter
+from util.cache_writers.cache import CacheWriter
 
 
 class W2VCacheWriter(CacheWriter):

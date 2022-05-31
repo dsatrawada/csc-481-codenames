@@ -1,3 +1,4 @@
+from util.cache_writers.cache import CacheWriter
 import sys, os
 import re
 import json
@@ -9,7 +10,6 @@ nltk.download('wordnet')
 nltk.download('omw-1.4')
 
 from tqdm import tqdm
-from cache import CacheWriter
 
 class WnCacheWriter(CacheWriter):
 

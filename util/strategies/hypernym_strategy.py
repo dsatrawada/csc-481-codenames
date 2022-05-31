@@ -2,9 +2,9 @@
 import os
 import re
 from typing import Tuple
-from strategy import Strategy
-from hyp_similarity import HypernymSimilarity
-from loss import loss
+from util.strategies.strategy import Strategy
+from util.similarities.hyp_similarity import HypernymSimilarity
+from util.loss import loss
 import numpy as np
 
 class HypernymStrategy(Strategy):
