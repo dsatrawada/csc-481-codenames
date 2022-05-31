@@ -1,4 +1,4 @@
-from reader import Reader
+from util.readers.reader import Reader
 from typing import List, Tuple
 import re
 
@@ -46,7 +46,7 @@ class TerminalReader(Reader):
 
     def read_clue(self, word_set) -> Tuple[str, int]:
         while True:
-            inp = input("Clue (e.g. 'car 2'): ").upper()
+            inp = input("Clue (e.g. 'car 2'): ").lower()
             match = re.match("(\w+)\s+(\d+)", inp)
 
             if match:

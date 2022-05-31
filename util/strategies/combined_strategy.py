@@ -2,10 +2,10 @@
 import os
 import re
 from typing import Tuple
-from strategy import Strategy
-from hyp_similarity import HypernymSimilarity
-from mer_holo_similarity import MeronymHolonymSimilarity
-from loss import loss
+from util.strategies.strategy import Strategy
+from util.similarities.hyp_similarity import HypernymSimilarity
+from util.similarities.mer_holo_similarity import MeronymHolonymSimilarity
+from util.loss import loss
 import numpy as np
 
 class CombinedStrategy(Strategy):

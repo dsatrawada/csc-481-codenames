@@ -1,12 +1,9 @@
 import os
 import random
-from typing import List, Tuple
-import re
-from strategy import Strategy
-from hypernym_strategy import HypernymStrategy
-from combined_strategy import CombinedStrategy
-from reader import Reader
-from terminal_reader import TerminalReader
+from util.strategies.strategy import Strategy
+from util.strategies.combined_strategy import CombinedStrategy
+from util.readers.reader import Reader
+from util.readers.terminal_reader import TerminalReader
 
 class Codenames:
     def __init__(self, cnt_rows=5, cnt_cols=5, cnt_agents=9, cnt_opponents=8, cnt_neutral=7, cnt_death=1):

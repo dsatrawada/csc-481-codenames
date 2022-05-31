@@ -1,7 +1,7 @@
 import sys, os
 
 import json
-from cache import CacheWriter
+from util.cache_writers.cache import CacheWriter
 
 
 class Similarity():
