@@ -11,7 +11,7 @@ nltk.download('omw-1.4')
 from tqdm import tqdm
 from wn_cache import WnCacheWriter
 
-class HypCacheWriter(WnCacheWriter):
+class MerCacheWriter(WnCacheWriter):
 
     def __init__(
             self, 
@@ -19,7 +19,7 @@ class HypCacheWriter(WnCacheWriter):
             board_bank_path: str,
             cache_name: str):
 
-        super(HypCacheWriter, self).__init__(
+        super(MerCacheWriter, self).__init__(
                                         word_bank_path,
                                         board_bank_path,
                                         cache_name)
@@ -43,7 +43,7 @@ def main():
     word_bank_loc = os.path.join('words', 'word_bank.txt')
     board_bank_loc = os.path.join('words', 'board_bank.txt')
 
-    hpycw = HypCacheWriter(word_bank_loc, board_bank_loc, 'mer_holo.json')
+    hpycw = MerCacheWriter(word_bank_loc, board_bank_loc, 'mer_holo.json')
     hpycw.create_cache()
 
 if __name__ == '__main__':
