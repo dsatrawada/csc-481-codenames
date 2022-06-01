@@ -3,7 +3,7 @@ import os
 import re
 from typing import Tuple
 from util.strategies.strategy import Strategy
-from util.similarities.hyp_similarity import HypernymSimilarity
+from util.similarities.hyp_similarity import HypernymHyponymSimilarity
 from util.similarities.mer_holo_similarity import MeronymHolonymSimilarity
 from util.loss import loss
 import numpy as np
@@ -14,21 +14,18 @@ class CombinedStrategy(Strategy):
     by examining meronym +holonym, combined with hyper/hyponym relationships. 
     """
 
-    def __init__(self, h0: float, h1: float, h2: float, h3: float):
+    def __init__(self, h0: float, h1: float, h2: float):
         """
-        :param h0: Weight for the number of words in a guess
-        :param h1: Weight for the maximum similarity loss of the guess and the
-            target set of words. A larger similarity loss indicates lower similarity
-        :param h2: Weight for the minimum similarity loss of the guess and an opponent
-            word.
-        :param h3: Weight for the similarityu loss of the guess and the assassin word
+        :param h0: Weight for the hyponym-hypernym similarity
+        :param h1: Weight for the meronym-holonym similarity
+        :param h2: Weight for the antonym similarity
         """
         super().__init__()
         self.h0 = h0
         self.h1 = h1
         self.h2 = h2
-        self.h3 = h3
-        self.hs = HypernymSimilarity("max")
+      
+        self.hs = HypernymHyponymSimilarity("max")
         self.ms = MeronymHolonymSimilarity("max")
         # Load the wordbank
         word_bank = os.path.join('words', 'word_bank.txt')
@@ -63,19 +60,23 @@ class CombinedStrategy(Strategy):
             n_sim = []
             l_sim = []
             for a_word in a_words:
-                sim = self.hs.similarity(word, a_word)*0.8 + self.ms.similarity(word, a_word) * 0.2
+                # sim = self.hs.similarity(word, a_word)*self.h0 + self.ms.similarity(word, a_word) * self.h1
+                sim = max(self.hs.similarity(word, a_word), self.ms.similarity(word, a_word))
                 a_sim.append(sim)
 
             for o_word in o_words:
-                sim = self.hs.similarity(word, o_word)*0.8 + self.ms.similarity(word, o_word) * 0.2
+                # sim = self.hs.similarity(word, o_word)*self.h0 + self.ms.similarity(word, o_word) * self.h1
+                sim = max(self.hs.similarity(word, o_word), self.ms.similarity(word, o_word))
                 o_sim.append(sim)
 
             for n_word in n_words:
-                sim = self.hs.similarity(word, n_word)*0.8 + self.ms.similarity(word, n_word) * 0.2
+                # sim = self.hs.similarity(word, n_word)*self.h0 + self.ms.similarity(word, n_word) * self.h1
+                sim = max(self.hs.similarity(word, n_word), self.ms.similarity(word, n_word))
                 n_sim.append(sim)
 
             for l_word in d_words:
-                sim = self.hs.similarity(word, l_word)*0.8 + self.ms.similarity(word, l_word) * 0.2
+                # sim = self.hs.similarity(word, l_word)*self.h0 + self.ms.similarity(word, l_word) * self.h1
+                sim = max(self.hs.similarity(word, l_word), self.ms.similarity(word, l_word))
                 l_sim.append(sim)
             
             
@@ -90,10 +91,15 @@ class CombinedStrategy(Strategy):
 
         return (max_score[0], max_score[2])
 
-    # def get_utility(self, i_sim: list[int], o_sim: list[int], a_sim: int):
-    #     """
-    #     :param i_sim: List of path lengths between target words and a guess.
-    #     :param o_sim: List of path lengths between a guess and oponent words.
-    #     :param a_sim: Path lenght between a guess and the assassin word
-    #     """
-    #     return h0 * len(i_sim) + h1 * max(i_sim) - h2 * min(o_sim)
+  
+
+    def make_guess(self, clue: str, words: list[str]) -> str:
+        max_sim = float('inf')* -1;
+        word_chosen = "None"
+        for word in words:
+            # sim = self.hs.similarity(word, clue)*self.h0 + self.ms.similarity(word, clue) * self.h1
+            sim = max(self.hs.similarity(word, clue) , self.ms.similarity(word, clue) * self.h1)
+            if sim > max_sim:
+                sim = max_sim
+                word_chosen = word
+        return word_chosen

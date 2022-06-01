@@ -4,7 +4,7 @@ import json
 
 from util.similarities.similarity import Similarity
 
-class HypernymSimilarity(Similarity):
+class HypernymHyponymSimilarity(Similarity):
     def __init__(self, similarity_type: str, cache_loc=None):
         '''
         Given two words, this class provides means to find the similarity between
@@ -15,7 +15,7 @@ class HypernymSimilarity(Similarity):
             or avg similarity between synsets
         :param cache_loc: path to the file where the similarities are stored
         '''
-        super(HypernymSimilarity, self).__init__()
+        super(HypernymHyponymSimilarity, self).__init__()
         self.sym_map = {}
         self.cache_loc = cache_loc
         if self.cache_loc is None:
@@ -53,7 +53,7 @@ class HypernymSimilarity(Similarity):
     
 
 if __name__ == '__main__':
-    hs = HypernymSimilarity('min', os.path.join('similarities', 'w2vtest.json'))
+    hs = HypernymHyponymSimilarity('min', os.path.join('similarities', 'w2vtest.json'))
     print(hs.similarity('worm', 'have'))
 
 
