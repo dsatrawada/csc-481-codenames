@@ -1,30 +1,26 @@
-import sys, os
+import sys
+import os
 
 import json
+from util.cache_writers.cache import CacheWriter
 
-from util.similarities.similarity import Similarity
 
-class MeronymHolonymSimilarity(Similarity):
-    def __init__(self, similarity_type: str, cache_loc=None):
+class Similarity():
+    def __init__(self, similarity_type: str, cache_file):
         '''
         Given two words, this class provides means to find the similarity between
-        them by searching in a hash map. The hash map is stored locally in a json
-        file. To create the json file, run the main method of this module. The file
-        takes around 1.5 hrs to create.
+        them.
         :param similarity_type: one of 'min', 'max', or 'avg'. Returns the min, max
             or avg similarity between synsets
         :param cache_loc: path to the file where the similarities are stored
         '''
-        super(MeronymHolonymSimilarity, self).__init__()
         self.sym_map = {}
-        self.cache_loc = cache_loc
-        if self.cache_loc is None:
-            self.cache_loc = os.path.join('similarities', 'mer_holo.json')
+        self.cache_loc = os.path.join(
+            'similarities', cache_file)
         self.sym_map = self.load_map()
         self.similarity_type = similarity_type
 
-
-    def similarity(self, w1: str, w2: str)  -> float:
+    def similarity(self, w1: str, w2: str) -> float:
         '''
         Returns the Hypernym Similarity between word1 and
         word2. 
@@ -33,7 +29,7 @@ class MeronymHolonymSimilarity(Similarity):
         :returns a float representing the similarity between 
             the two words
         '''
-        key = self.gen_id(w1, w2) 
+        key = self.gen_id(w1, w2)
         if key in self.sym_map:
             if self.similarity_type == 'avg':
                 return self.sym_map[key]['avg']
@@ -41,22 +37,22 @@ class MeronymHolonymSimilarity(Similarity):
                 return self.sym_map[key]['min']
             if self.similarity_type == 'max':
                 return self.sym_map[key]['max']
-        raise ValueError('Similarity between ' + w1 + ' and ' + w2 + ' not found.' + \
-                'Consider refreshing the cache by running the main method of hyp_sim.py')
+        raise ValueError('Similarity between ' + w1 + ' and ' + w2 + ' not found.' +
+                         'Consider refreshing the cache by running the main method of the corresponding cache file.')
 
     def load_map(self) -> dict[str, dict[str, float]]:
         '''
-        Loads the hypernym similarity map from a stored file
+        Loads the similarity map from a stored file
         '''
         with open(self.cache_loc, 'r') as fin:
             return json.load(fin)
-    
 
-# if __name__ == '__main__':
-#     hs = HypernymSimilarity('min', os.path.join('similarities', 'w2vtest.json'))
-#     print(hs.similarity('worm', 'have'))
-
-
-
-
-
+    def gen_id(self, w1: str, w2: str) -> str:
+        '''
+        Get a string id for the two words based on the function
+        implemented by CacheWriter
+        :param w1: Fisrt word
+        :param w2: Second word
+        :returns: string representing the id
+        '''
+        return CacheWriter.gen_id(w1, w2)

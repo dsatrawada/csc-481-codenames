@@ -9,7 +9,7 @@ nltk.download('wordnet')
 nltk.download('omw-1.4')
 
 from tqdm import tqdm
-from util.cache_writers.wn_cache import WnCacheWriter
+from wn_cache import WnCacheWriter
 
 class HypCacheWriter(WnCacheWriter):
 
@@ -33,8 +33,8 @@ class HypCacheWriter(WnCacheWriter):
         return syn1.path_similarity(syn2)
 
 def main():
-    word_bank_loc = os.path.join('words', 'word_bank.txt')
-    board_bank_loc = os.path.join('words', 'board_bank.txt')
+    word_bank_loc = os.path.join('..', '..', 'words', 'word_bank.txt')
+    board_bank_loc = os.path.join('..', '..', 'words', 'board_bank.txt')
 
     hpycw = HypCacheWriter(word_bank_loc, board_bank_loc, 'test_hyp.json')
     hpycw.create_cache()

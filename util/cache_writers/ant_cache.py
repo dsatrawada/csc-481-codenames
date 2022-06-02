@@ -1,13 +1,17 @@
+from cache import CacheWriter
 import sys, os
 import re
 import json
 
+import nltk
+import json
+from nltk.corpus import wordnet as wn
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+
 from tqdm import tqdm
 
-from cache import CacheWriter
-
-
-class W2VCacheWriter(CacheWriter):
+class AntCacheWriter(CacheWriter):
 
     def __init__(
             self, 
@@ -15,11 +19,10 @@ class W2VCacheWriter(CacheWriter):
             board_bank_path: str,
             cache_name: str):
 
-        super(W2VCacheWriter, self).__init__(
+        super(AntCacheWriter, self).__init__(
                                         word_bank_path,
                                         board_bank_path,
                                         cache_name)
-
 
     def base_similarity(self, w1: str, w2: str) -> float:
         '''
@@ -31,12 +34,20 @@ class W2VCacheWriter(CacheWriter):
         of the synsets. For words, this should just return the same
         value three times
         '''
-        return 0.6, 0.6, 0.6
+        for lemma in wn.lemmas(w1):
+            for antonym in lemma.antonyms():
+                if antonym in wn.lemmas(w2):
+                    return 1.0, 1.0, 1.0
 
-
-if __name__ == '__main__':
+        return 0, 0, 0
+        
+def main():
     word_bank_loc = os.path.join('..', '..', 'words', 'word_bank.txt')
     board_bank_loc = os.path.join('..', '..', 'words', 'board_bank.txt')
 
-    w2vcw = W2VCacheWriter(word_bank_loc, board_bank_loc, 'w2vtest.json')
-    w2vcw.create_cache()
+    antcw = AntCacheWriter(word_bank_loc, board_bank_loc, 'ant.json')
+    antcw.create_cache()
+
+if __name__ == '__main__':
+    main()
+        
