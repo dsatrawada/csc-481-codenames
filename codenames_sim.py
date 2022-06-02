@@ -2,9 +2,9 @@ import os
 import random
 from typing import List, Tuple
 import re
-from strategy import Strategy
-from hypernym_strategy import HypernymStrategy
-
+from util.strategies.strategy import Strategy
+from util.strategies.hypernym_hyponym import  HypernymHyponymStrategy
+from util.strategies.combined_strategy import CombinedStrategy
 
 class Reader:
     def read_picks(
@@ -29,7 +29,7 @@ class Reader:
         """
         raise NotImplementedError
     def print_stats(self, my_words: set[str], opn_words: set[str],
-                    neutral_words: set[str], d_words: set[str], debug: bool):
+                    neutral_words: set[str], d_words: set[str], revealing: bool):
 
         raise NotImplementedError
 
@@ -83,7 +83,7 @@ class TerminalReader(Reader):
 
     def read_clue(self, word_set) -> Tuple[str, int]:
         while True:
-            inp = input("Clue (e.g. 'car 2'): ").upper()
+            inp = input("Clue (e.g. 'car 2'): ").lower().strip()
             match = re.match("(\w+)\s+(\d+)", inp)
 
             if match:
@@ -103,18 +103,18 @@ class TerminalReader(Reader):
         print()
 
     def print_stats(self, my_words: set[str], opn_words: set[str],
-                    neutral_words: set[str], d_words: set[str], debug: bool):
+                    neutral_words: set[str], d_words: set[str], revealing: bool):
 
         print("\n----------------------------------------------------------------")
         print("AGENT WORDS: %d               OPPONENT WORDS: %d" %
               (len(my_words), len(opn_words)))
-        if debug:
-            print("\nDebugInfo:")
-            print("     AGENT WORDS:", my_words)
-            print("     OPPONENT WORDS:", opn_words)
-            print("     NEUTRAL WORDS:", neutral_words)
-            print("     DEATH WORDS:", d_words)
-        print("---------------------------------------------------------------")
+        if revealing:
+            print()
+            print("AGENT WORDS:", my_words)
+            print("OPPONENT WORDS:", opn_words)
+            print("NEUTRAL WORDS:", neutral_words)
+            print("DEATH WORDS:", d_words)
+        print("----------------------------------------------------------------")
 
 
 class Codenames:
@@ -135,52 +135,17 @@ class Codenames:
         self.cnt_death = cnt_death
 
         self.codenames = []
+        self.wordbank = set()
 
-    def load(self, word_bank_file):
+    def load(self, board_bank_file, word_bank_file):
         # All words that are allowed to go onto the table
 
-        with open(word_bank_file) as f:
+        with open(board_bank_file) as f:
             self.codenames = [line.strip() for line in f]
+        with open(word_bank_file) as f:
+            for line in f:
+                self.wordbank.add(line.strip())
 
-
-
-    def make_guess(
-            self, clue: str, choices: List[str]) -> str:
-        """
-        :param clue: Clue from the spymaster.
-        :param choices: Choices on the table.
-        :return: Which choice to go for.
-        """
-        # TODO
-
-        print("Thinking", end="", flush=True)
-
-        best_guess = "xxxx"
-
-        # After printing '.'s with end="" we need a clean line.
-        print()
-
-        return best_guess
-
-    # def find_clue(
-    #     self, words: set[str], a_words: set[str], o_words: set[str],
-    #         n_words: set[str], d_words: set[str], used_clue: set[str]) -> Tuple[str, List[str]]:
-    #     """
-    #     :param words: Words on the board.
-    #     :param used_clues: Clues we are not allowed to give.
-    #     :return: (The best clue, the score, the words we expect to be guessed)
-    #     """
-    #     # TODO
-
-    #     print("Thinking", end="", flush=True)
-
-    #     best_clue = "birdie"
-    #     best_guess = ["...", "xxxx"]
-
-    #     # After printing '.'s with end="" we need a clean line.
-    #     print()
-
-    #     return best_clue, best_guess
 
     def initialize_game(self, words):
         words_c = set(words.copy())
@@ -211,7 +176,7 @@ class Codenames:
 
         while agent_words and opponent_words:
             reader.print_stats(agent_words, opponent_words,
-                               neutral_words, death_words, debug=True)
+                               neutral_words, death_words, revealing=True)
             reader.print_words(words, nrows=self.cnt_rows)
 
             clue, guesses = strategy.find_clue(
@@ -242,30 +207,44 @@ class Codenames:
 
         while any(w not in picked for w in agent_words):
             reader.print_stats(agent_words, opponent_words,
-                               neutral_words, death_words, debug=True)
+                               neutral_words, death_words, revealing=True)
             reader.print_words(words, nrows=self.cnt_rows)
-            print("Your words:", ", ".join(
-                w for w in agent_words if w not in picked))
-            # TODO: change word bank for clues?
-            clue, cnt = reader.read_clue(self.codenames)
+            clue, cnt = reader.read_clue(self.wordbank)
             for _ in range(cnt + 1):
-                guess = self.make_guess(
-                    clue, [w for w in words if w not in picked])
+                guess = strategy.make_guess(
+                    clue, [w for w in words if w not in picked and w not in {"-O-", "-N-", "-✓-"}])
                 picked.append(guess)
                 print("I guess {}!".format(guess))
-                if guess not in agent_words or guess in picked:
-                    print("I got it wrong. Sorry about that!")
-                    break
-            else:
-                print("I got them all!")
+               
+                if guess in agent_words:
+                    print("\nCorrect!\n")
+                    agent_words.remove(guess)
+                    words[words.index(guess)] = "-✓-"
+                else:
+                    if guess in death_words:
+                        print("\nWrong - Assassin Word x_x\n")
+                        exit(0)
+
+                    if guess in neutral_words:
+                        print("\nWrong - Neutral Word :(\n")
+                        neutral_words.remove(guess)
+                        words[words.index(guess)] = "-N-"
+                        break
+
+                    if guess in opponent_words:
+                        print("\nWrong - Opponent Word :(\n")
+                        opponent_words.remove(guess)
+                        words[words.index(guess)] = "-O-"
+                        break
 
 
 def main():
     print("...Loading codenames")
     cn = Codenames()
-    cn.load(os.path.join('words', 'board_bank.txt'))
+    cn.load(os.path.join('words', 'board_bank.txt'), os.path.join('words', 'word_bank.txt'))
+
     reader = TerminalReader()
-    strategy = HypernymStrategy(0,0, 0, 0)
+    strategy = CombinedStrategy(0.8,0.2, 0)
     print("Ready!")
     
     while True:

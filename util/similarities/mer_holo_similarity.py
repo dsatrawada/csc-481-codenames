@@ -2,9 +2,9 @@ import sys, os
 
 import json
 
-from similarity import Similarity
+from util.similarities.similarity import Similarity
 
-class HypernymSimilarity(Similarity):
+class MeronymHolonymSimilarity(Similarity):
     def __init__(self, similarity_type: str, cache_loc=None):
         '''
         Given two words, this class provides means to find the similarity between
@@ -15,11 +15,11 @@ class HypernymSimilarity(Similarity):
             or avg similarity between synsets
         :param cache_loc: path to the file where the similarities are stored
         '''
-        super(HypernymSimilarity, self).__init__()
+        super(MeronymHolonymSimilarity, self).__init__()
         self.sym_map = {}
         self.cache_loc = cache_loc
         if self.cache_loc is None:
-            self.cache_loc = os.path.join('similarities', 'hyp.json')
+            self.cache_loc = os.path.join('similarities', 'mer_holo.json')
         self.sym_map = self.load_map()
         self.similarity_type = similarity_type
 
@@ -52,9 +52,9 @@ class HypernymSimilarity(Similarity):
             return json.load(fin)
     
 
-if __name__ == '__main__':
-    hs = HypernymSimilarity('min', os.path.join('similarities', 'w2vtest.json'))
-    print(hs.similarity('worm', 'have'))
+# if __name__ == '__main__':
+#     hs = HypernymSimilarity('min', os.path.join('similarities', 'w2vtest.json'))
+#     print(hs.similarity('worm', 'have'))
 
 
 

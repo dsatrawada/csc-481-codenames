@@ -1,3 +1,4 @@
+from util.cache_writers.cache import CacheWriter
 import sys, os
 import re
 import json
@@ -9,7 +10,6 @@ nltk.download('wordnet')
 nltk.download('omw-1.4')
 
 from tqdm import tqdm
-from cache import CacheWriter
 
 class WnCacheWriter(CacheWriter):
 
@@ -68,10 +68,13 @@ class WnCacheWriter(CacheWriter):
                     sim_max = similarity
         return sim_sum / sim_count, sim_min, sim_max
 
-if __name__ == '__main__':
+def main():
     word_bank_loc = os.path.join('words', 'word_bank.txt')
     board_bank_loc = os.path.join('words', 'board_bank.txt')
 
     wncw = WnCacheWriter(word_bank_loc, board_bank_loc, 'test.json')
     wncw.create_cache()
+
+if __name__ == '__main__':
+    main()
         

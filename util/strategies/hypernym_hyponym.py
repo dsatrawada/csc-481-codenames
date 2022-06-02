@@ -2,12 +2,12 @@
 import os
 import re
 from typing import Tuple
-from strategy import Strategy
-from hyp_sim import HypernymSimilarity
-from loss import loss
+from util.strategies.strategy import Strategy
+from util.similarities.hyp_similarity import HypernymHyponymSimilarity
+from util.loss import loss
 import numpy as np
 
-class HypernymStrategy(Strategy):
+class HypernymHyponymStrategy(Strategy):
     """
     The HypernymStrategy class extends the Strategy class and searches for clues
     by examining only hypernym relationships. 
@@ -27,7 +27,7 @@ class HypernymStrategy(Strategy):
         self.h1 = h1
         self.h2 = h2
         self.h3 = h3
-        self.hs = HypernymSimilarity()
+        self.hs = HypernymHyponymSimilarity("max")
         # Load the wordbank
         word_bank = os.path.join('words', 'word_bank.txt')
         with open(word_bank, 'r') as fin:
@@ -61,16 +61,16 @@ class HypernymStrategy(Strategy):
             n_sim = []
             l_sim = []
             for a_word in a_words:
-                a_sim.append(self.hs.similarity(word, a_word, "max"))
+                a_sim.append(self.hs.similarity(word, a_word))
 
             for o_word in o_words:
-                o_sim.append(self.hs.similarity(word, o_word,  "max"))
+                o_sim.append(self.hs.similarity(word, o_word))
 
             for n_word in n_words:
-                n_sim.append(self.hs.similarity(word, n_word, "max"))
+                n_sim.append(self.hs.similarity(word, n_word))
 
             for l_word in d_words:
-                l_sim.append(self.hs.similarity(word, l_word, "max"))
+                l_sim.append(self.hs.similarity(word, l_word))
             
             
             score_list = loss(3, a_sim, o_sim,
