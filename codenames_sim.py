@@ -3,7 +3,6 @@ import random
 from typing import List, Tuple
 import re
 from util.strategies.strategy import Strategy
-from util.strategies.hypernym_hyponym import  HypernymHyponymStrategy
 from util.strategies.combined_strategy import CombinedStrategy
 
 class Reader:
@@ -76,7 +75,7 @@ class TerminalReader(Reader):
                     break
                 
 
-            if (picksCount > cnt):
+            if (picksCount >= cnt):
                 print("\nNo more attempts\n")
                 break
 
@@ -210,7 +209,7 @@ class Codenames:
                                neutral_words, death_words, revealing=True)
             reader.print_words(words, nrows=self.cnt_rows)
             clue, cnt = reader.read_clue(self.wordbank)
-            for _ in range(cnt + 1):
+            for _ in range(cnt):
                 guess = strategy.make_guess(
                     clue, [w for w in words if w not in picked and w not in {"-O-", "-N-", "-✓-"}])
                 picked.append(guess)
@@ -244,7 +243,7 @@ def main():
     cn.load(os.path.join('words', 'board_bank.txt'), os.path.join('words', 'word_bank.txt'))
 
     reader = TerminalReader()
-    strategy = CombinedStrategy(0.8,0.2, 0)
+    strategy = CombinedStrategy()
     print("Ready!")
     
     while True:

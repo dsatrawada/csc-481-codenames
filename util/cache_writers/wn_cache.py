@@ -1,4 +1,4 @@
-from util.cache_writers.cache import CacheWriter
+from cache import CacheWriter
 import sys, os
 import re
 import json
@@ -69,8 +69,8 @@ class WnCacheWriter(CacheWriter):
         return sim_sum / sim_count, sim_min, sim_max
 
 def main():
-    word_bank_loc = os.path.join('words', 'word_bank.txt')
-    board_bank_loc = os.path.join('words', 'board_bank.txt')
+    word_bank_loc = os.path.join('..', '..', 'words', 'word_bank.txt')
+    board_bank_loc = os.path.join('..', '..', 'words', 'board_bank.txt')
 
     wncw = WnCacheWriter(word_bank_loc, board_bank_loc, 'test.json')
     wncw.create_cache()

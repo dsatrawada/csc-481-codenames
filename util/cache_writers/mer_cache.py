@@ -1,4 +1,4 @@
-from util.cache_writers.wn_cache import WnCacheWriter
+from wn_cache import WnCacheWriter
 import sys, os
 import re
 import json
@@ -40,8 +40,8 @@ class MerCacheWriter(WnCacheWriter):
         return 0
 
 def main():
-    word_bank_loc = os.path.join('words', 'word_bank.txt')
-    board_bank_loc = os.path.join('words', 'board_bank.txt')
+    word_bank_loc = os.path.join('..', '..', 'words', 'word_bank.txt')
+    board_bank_loc = os.path.join('..', '..', 'words', 'board_bank.txt')
 
     hpycw = MerCacheWriter(word_bank_loc, board_bank_loc, 'mer_holo.json')
     hpycw.create_cache()

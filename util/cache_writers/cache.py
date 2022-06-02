@@ -74,8 +74,8 @@ class CacheWriter:
 
 
 if __name__ == '__main__':
-    word_bank_loc = os.path.join('words', 'word_bank.txt')
-    board_bank_loc = os.path.join('words', 'board_bank.txt')
+    word_bank_loc = os.path.join('..', '..', 'words', 'word_bank.txt')
+    board_bank_loc = os.path.join('..', '..', 'words', 'board_bank.txt')
 
     cw = CacheWriter(word_bank_loc, board_bank_loc, 'test.json')
     cw.create_cache()
