@@ -14,7 +14,7 @@ class Reader:
             cnt: int
     ) -> None:
         """
-        Query the user for guesses and update the board.
+        Query the user for guesses
         :param words: Words the user can choose from.
         :param agent_words: Correct words.
         :param cnt: Number of guesses the user has.
@@ -29,15 +29,43 @@ class Reader:
         :param nrows: Number of rows to print.
         """
         raise NotImplementedError
-    def print_stats(self, my_words: set[str], opn_words: set[str],
-                    neutral_words: set[str], d_words: set[str], revealing: bool):
 
+    def print_stats(self, agent_words: set[str], opn_words: set[str],
+                    neutral_words: set[str], d_words: set[str], revealing: bool):
+        """
+        Prints the stats for each turn of the game, including the number of 
+        remaining agent words (corect words), and remaining  opponent words. 
+        When the revealing option is True, this method also prints out
+        the comprehensive list of remaining agent words, opponent words, and 
+        death words, which is useful when a human is a spymaster. 
+        :param agent_words: set of remaining correct words
+        :param opn_words: set of opponent words
+        :param neutral_words: set of remaining neutral words
+        :param d_words: set of remaining assasin (death) words
+        :param revealing: revaling option
+        """
         raise NotImplementedError
 
     def read_clue(self, word_set) -> Tuple[str, int]:
+        """
+        Read in and parse a clue provided by the user from the keyboard.
+        For calculating word similarity, the user cannot provide a clue 
+        that is outside of the wordbank being used in the game
+        :param word_set: a set of word in the wordbank. 
+        :return: (The clue, the number of words for that clue)
+        """
         raise NotImplementedError
 
     def checkGuess(self, guess: str, words: List[str], agent_words: set[str], opn_words: set[str], neutral_words: set[str], d_words: set[str]) -> bool:
+        """
+        Validate the guess and update the board accordingly
+        :param words: words in the board
+        :param agent_words: set of remaining correct words
+        :param opn_words: set of remaining opponent words
+        :param neutral_words: set of remaining neutral words
+        :param d_words: set of remaining assasin (death) words
+        :return: True if we make a correct guess, False otherwise
+        """
         raise NotImplementedError
             
 
@@ -93,15 +121,15 @@ class TerminalReader(Reader):
             print()
         print()
 
-    def print_stats(self, my_words: set[str], opn_words: set[str],
+    def print_stats(self, agent_words: set[str], opn_words: set[str],
                     neutral_words: set[str], d_words: set[str], revealing: bool):
 
         print("\n----------------------------------------------------------------")
         print("AGENT WORDS: %d               OPPONENT WORDS: %d" %
-              (len(my_words), len(opn_words)))
+              (len(agent_words), len(opn_words)))
         if revealing:
             print()
-            print("AGENT WORDS:", my_words)
+            print("AGENT WORDS:", agent_words)
             print("OPPONENT WORDS:", opn_words)
             print("NEUTRAL WORDS:", neutral_words)
             print("DEATH WORDS:", d_words)
@@ -109,7 +137,6 @@ class TerminalReader(Reader):
 
     
     def checkGuess(self, guess: str, words: List[str], agent_words: set[str], opn_words: set[str], neutral_words: set[str], d_words: set[str]) -> bool:
-
         if guess in agent_words:
             print("\nCorrect!\n")
             agent_words.remove(guess)
@@ -130,7 +157,6 @@ class TerminalReader(Reader):
                 opn_words.remove(guess)
                 words[words.index(guess)] = "-O-"
                
-
             return False
 
 
@@ -162,7 +188,13 @@ class Codenames:
         self.wordbank = set()
 
     def load(self, board_bank_file, word_bank_file):
-        # All words that are allowed to go onto the table
+        """
+        Load the boardbank and the wordbank. Boardbank is a set of 
+        words that the game board will draw from, while wordbank
+        is a set of common English wordd that we can use to give clues
+        :param board_bank_file: path to the boardbank file
+        :param agent_words: path to the wordbank file
+        """
 
         with open(board_bank_file) as f:
             self.boardbank = [line.strip() for line in f]
@@ -172,18 +204,30 @@ class Codenames:
 
 
 
-    def getGameStats(self):
-        print()
-        print("Overall Stats")
+    def printGameStats(self):
+        """
+        Prints the stats of the current codenames session, including:
+            1. Total wins from beginning
+            2. Total loses from beginning
+            3. Avg number of turn per each game
+        """
+
+        print("\nOverall Stats")
         print(" - Total wins from beginning:", self.win)
         print(" - Total loses from beginning:", self.lose)
         print(" - Total ties from beginning:", self.tie)
-        print(" - Avg number of turn per each game:", sum(self.turn_records) / len(self.turn_records))
-        print()
+        print(" - Avg number of turn per each game:", sum(self.turn_records) / len(self.turn_records), "\n")
 
-
+      
 
     def getGameResult(self, agent_words: set[str], opponent_words: set[str], death_words: set[str]):
+        """
+        Gets the final verdict of the game, including who wins, and the the number of turn of that game,
+        then update the stats.
+        :param agent_words: set of remaining correct words
+        :param opn_words: set of remaining opponent words
+        :param d_words: set of remaining assasin (death) words
+        """
         if (not agent_words and opponent_words and death_words):
             print("\nYou win!")
             self.win += 1
@@ -198,6 +242,11 @@ class Codenames:
      
 
     def initialize_game(self, words):
+        """
+        Generate the Codenames board at the beginning of the game 
+        :param words: a set of words that the game board will draw from
+        :return (set of agent words, set of opponent words, set of neutral words, set of death words, set of words that cannot be used as clues)
+        """
         words_c = set(words.copy())
 
         agent_words = set(random.sample(list(words_c), self.cnt_agents))
@@ -218,6 +267,8 @@ class Codenames:
     def play_spymaster(self, reader: Reader, strategy: Strategy):
         """
         Play a complete game, with the robot being the spymaster.
+        :param reader: a Reader object from the Reader class
+        :param strategy: a Strategy object forom the Strategy class
         """
 
         words = random.sample(self.boardbank, self.cnt_rows * self.cnt_cols)
@@ -256,6 +307,8 @@ class Codenames:
     def play_agent(self, reader: Reader, strategy: Strategy):
         """
         Play a complete game, with the robot being the agent.
+        :param reader: a Reader object from the Reader class
+        :param strategy: a Strategy object forom the Strategy class
         """
 
         words = random.sample(self.boardbank, self.cnt_rows * self.cnt_cols)
@@ -286,6 +339,10 @@ class Codenames:
     def play_sim(self, reader: Reader, strategy: Strategy, num_sim: int, auto_exit: bool): 
         """
         Play a complete game, with the robot being both the agent and the spymaster.
+        :param reader: a Reader object from the Reader class
+        :param strategy: a Strategy object forom the Strategy class
+        :param num_sim: number of gameplays to perform
+        :param auto_exit: an option to automatically print out the overall stats and exit the program when all the gameplays are done
         """
 
         for _ in range(num_sim):
@@ -326,7 +383,7 @@ class Codenames:
 
             
         if auto_exit:
-            self.getGameStats()
+            self.printGameStats()
             exit(0)
 
 
@@ -363,30 +420,16 @@ def main():
         elif option == 3:
             value = input("Select number of iterations: ")
             num_iter = int(value.strip())
-            value = input("Automatically prints overall stats and exits the program when the simulation is done (Y/N):")
+            value = input("Automatically prints overall stats and exits the program when all the gameplays are done (Y/N): ")
             auto_exit = True if value.strip() == 'Y' else False
             cn.play_sim(reader, strategy, num_iter, auto_exit)
         elif option == 4:
-            cn.getGameStats()
+            cn.printGameStats()
         else:
             print("Exited with code 0")
             exit(0)
 
             
-        # try:
-        #     mode = input("\nWill you be agent or spymaster?: ")
-        # except KeyboardInterrupt:
-        #     print("\nGoodbye!")
-        #     break
-
-        # try:
-        #     if mode == "spymaster":
-        #         cn.play_agent(reader, strategy)
-        #     elif mode == "agent":
-        #         cn.play_spymaster(reader, strategy)
-        # except KeyboardInterrupt:
-        #     # Catch interrupts from play functions
-        #     pass
 
 if __name__ == "__main__":
     main()

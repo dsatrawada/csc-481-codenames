@@ -23,20 +23,26 @@ class Strategy:
         wbw = re.findall(r'[A-z]+', wb_contents)
         self.wordbank = wbw
 
-    def calculate_similarity(self, w1, w2):
+    def calculate_similarity(self, w1: str, w2: str) -> float:
+        """
+        Calculate the similarity between two words
+        :param w1: the first word
+        :param w2: the second word
+        :return a float between 0 and 1 representing the similarity between two words
+        """
         return self.sim.similarity(w1, w2)
 
     def find_clue(
         self, words: set[str], a_words: set[str], o_words: set[str],
             n_words: set[str], d_words: set[str], cant_use: set[str]) -> Tuple[str, int]:
         """
+        Look up the wordbank and find the best clue 
         :param words: Words on the board.
         :param a_words: Agent words. We want to guess these words.
         :param o_words: Opponent words. 
         :param n_words: Neutral words. 
         :param d_words: Assasin words.
-        :param cant_use: Words that are one one of the 25 starting words, or hints that
-            have been given
+        :param cant_use: Words that are either one of the 25 starting words, or hints that have been given
         :return: (The best clue, the words we expect to be guessed)
         """
         print("Thinking...")
@@ -45,7 +51,7 @@ class Strategy:
         # n = 0
         for word in self.wordbank:
 
-            if word in words or word in cant_use:
+            if word in cant_use or  word in words:
                 continue
             a_sim = []
             o_sim = []
@@ -75,6 +81,12 @@ class Strategy:
         return (max_score[0], max_score[2])
 
     def make_guess(self, clue: str, words: list[str]) -> str:
+        """
+        From a given clue, choosing the guess that are most similar to the clue
+        :param clue: The given clue
+        :param words: Available words in the board to choose
+        """
+
         max_sim = float('inf') * -1
         word_chosen = "None"
         for word in words:
