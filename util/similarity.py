@@ -31,16 +31,11 @@ class Similarity():
         '''
         key = self.gen_id(w1, w2)
         if key in self.sym_map:
-            if self.similarity_type == 'avg':
-                return self.sym_map[key]['avg']
-            if self.similarity_type == 'min':
-                return self.sym_map[key]['min']
-            if self.similarity_type == 'max':
-                return self.sym_map[key]['max']
+            return self.sym_map[key]
         raise ValueError('Similarity between ' + w1 + ' and ' + w2 + ' not found.' +
                          'Consider refreshing the cache by running the main method of the corresponding cache file.')
 
-    def load_map(self) -> dict[str, dict[str, float]]:
+    def load_map(self):
         '''
         Loads the similarity map from a stored file
         '''

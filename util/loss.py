@@ -66,7 +66,7 @@ def loss(max_words: int, a_sim: Iterable[float], o_sim: Iterable[float],
         
 
 
-def build_loss_tree(max_depth: int, a_sim: np.ndarray, a_id: list[str], depth: int, 
+def build_loss_tree(max_depth: int, a_sim: np.ndarray, a_id, depth: int, 
         prob_other: np.ndarray, sum_prob_other: float, score_other: np.ndarray, 
         prob_func) -> LossNode:
     """

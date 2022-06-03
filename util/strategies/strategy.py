@@ -9,13 +9,11 @@ from util.similarity import Similarity
 
 class Strategy:
 
-    def __init__(self, similarity_type, cache_file):
+    def __init__(self, cache_file):
         """
-         :param similarity_type: one of 'min', 'max', or 'avg'. Returns the min, max
-            or avg similarity between synsets
         :param cache_loc: path to the file where the similarities are stored (ex: ant.json)
         """
-        self.sim = Similarity(similarity_type, cache_file)
+        self.sim = Similarity(cache_file)
         # Load the wordbank
         word_bank = os.path.join('words', 'word_bank.txt')
         with open(word_bank, 'r') as fin:
