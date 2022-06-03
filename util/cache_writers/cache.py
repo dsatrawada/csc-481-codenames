@@ -21,7 +21,7 @@ class CacheWriter:
          self.wbw = re.findall(r'[A-z]+', wb_contents)
          self.bbw = re.findall(r'[A-z]+', bb_contents)
 
-         cache_loc = 'similarities'
+         cache_loc = os.path.join('..', '..', 'similarities')
          if not os.path.exists(cache_loc):
              os.makedirs(cache_loc)
 
@@ -63,11 +63,8 @@ class CacheWriter:
                 str_id = CacheWriter.gen_id(w1, w2)
                 if str_id in sim:
                     continue
-                sim[str_id] = {}
-                avg_sim, min_sim, max_sim = self.base_similarity(w1, w2)
-                sim[str_id]['avg'] = avg_sim
-                sim[str_id]['min'] = min_sim
-                sim[str_id]['max'] = max_sim
+                similarity = self.base_similarity(w1, w2)
+                sim[str_id] = similarity
 
         with open(self.cache_path, 'w') as fout:
             fout.write(json.dumps(sim))
