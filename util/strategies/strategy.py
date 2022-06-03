@@ -68,7 +68,7 @@ class Strategy:
                 d_sim.append(self.calculate_similarity(word, d_word))
 
             score_list = loss(3, a_sim, o_sim,
-                              n_sim, d_sim[0], lambda x: np.exp(10*x))
+                              n_sim, d_sim[0], lambda x: np.exp(25*x))
             # print(word, score_list)
             current_max = max(score_list)
             max_index = [index for index, item in enumerate(
