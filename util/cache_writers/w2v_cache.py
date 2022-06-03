@@ -75,8 +75,8 @@ class W2VCacheWriter(CacheWriter):
 
 
 if __name__ == '__main__':
-    word_bank_loc = os.path.join('words', 'word_bank.txt')
-    board_bank_loc = os.path.join('words', 'board_bank.txt')
+    word_bank_loc = os.path.join('..', '..', 'words', 'word_bank.txt')
+    board_bank_loc = os.path.join('..', '..', 'words', 'board_bank.txt')
 
     w2vcw = W2VCacheWriter(word_bank_loc, board_bank_loc, 'w2vtest.json')
     w2vcw.create_cache()

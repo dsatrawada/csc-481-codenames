@@ -86,8 +86,8 @@ class WnCacheWriter(CacheWriter):
         return result 
 
 def main():
-    word_bank_loc = os.path.join('words', 'word_bank.txt')
-    board_bank_loc = os.path.join('words', 'board_bank.txt')
+    word_bank_loc = os.path.join('..', '..', 'words', 'word_bank.txt')
+    board_bank_loc = os.path.join('..', '..', 'words', 'board_bank.txt')
 
     wncw = WnCacheWriter(word_bank_loc, board_bank_loc, 'test.json')
     wncw.create_cache()
