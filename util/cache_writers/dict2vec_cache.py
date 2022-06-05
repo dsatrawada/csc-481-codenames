@@ -23,14 +23,14 @@ class D2VCacheWriter(CacheWriter):
         '''
 
         # self.word_bank_path = ''
-        super(W2VCacheWriter, self).__init__(
+        super(D2VCacheWriter, self).__init__(
                                         word_bank_path,
                                         board_bank_path,
                                         cache_name)
-        self.vec_dict = self.read_vec_file(vec_path)
         self.word_set = set(self.wbw + self.bbw)
+        self.vec_dict = self.read_vec_file(vec_path)
 
-    def read_vec_file(self):
+    def read_vec_file(self, vec_path):
         '''
         Creates a dictionary from a word to a np array with the vector
         for the word
@@ -44,9 +44,7 @@ class D2VCacheWriter(CacheWriter):
                 word = tokens[0]
                 nums = np.array([float(w) for w in tokens[1:]])
                 ret_dict[word] = nums
-        return ret_dict
-
-        
+        return ret_dict 
 
 
     def base_similarity(self, w1: str, w2: str) -> float:
@@ -61,36 +59,17 @@ class D2VCacheWriter(CacheWriter):
         ''' 
 
         '''Word2Vec model approach to retrieving cosine distances between words. Not working as expected at the moment''' 
-        # words = open('word_bank.txt', 'r')
-        # list_of_words = [line.split(',') for line in words.readlines()]
-        # model = Word2Vec(list_of_words, size=150, window=10, min_count=2, workers=10)
-        # model.train(list_of_words,total_examples=len(list_of_words),epochs=10)
-        # cosine_similarity = np.dot(model[w1], model[w2])/(np.linalg.norm(model[w1])*np.linalg.norm(model[w2]))
-        # return cosine_similarity, cosine_similarity, cosine_similarity
-
-        vec1 = self.w2c(w1)
-        vec2 = self.w2c(w2)
-
-        common_chars = vec1[1].intersection(vec2[1])
-
-        distance = sum(vec1[0][char]*vec2[0][char] for char in common_chars)/vec1[2]/vec2[2]
-
-        return distance, distance, distance
-
-    
-
-
+        v1 = self.vec_dict[w1]
+        v2 = self.vec_dict[w2]
+        v1_mag = np.sqrt(v1 @ v1)
+        v2_mag = np.sqrt(v2 @ v2)
+        return (v1 @ v2) / (v1_mag * v2_mag)
 
 
 if __name__ == '__main__':
     word_bank_loc = os.path.join('..', '..', 'words', 'word_bank.txt')
     board_bank_loc = os.path.join('..', '..', 'words', 'board_bank.txt')
+    dict2vec_loc = os.path.join('..', '..', 'data', 'dict2vec-100d.vec')
 
-    w2vcw = W2VCacheWriter(word_bank_loc, board_bank_loc, 'w2vtest.json')
+    w2vcw = D2VCacheWriter(word_bank_loc, board_bank_loc, 'd2v_sim.json', dict2vec_loc)
     w2vcw.create_cache()
-    # w1 = 'manager'
-    # w2 = 'management'
-
-    # w2v = W2VCacheWriter('','', '')
-
-    # print(w2v.base_similarity(w1,w2))

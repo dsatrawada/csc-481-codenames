@@ -4,7 +4,8 @@ from typing import List, Tuple
 import re
 from util.strategies.strategy import Strategy
 from util.strategies.combined_strategy import CombinedStrategy
-
+import pandas as pd
+import numpy as np
 
 
 class Reader:
@@ -187,6 +188,9 @@ class Codenames:
         self.boardbank = []
         self.wordbank = set()
 
+        # Path for results
+        self.result_path = 'results'
+
     def load(self, board_bank_file, word_bank_file):
         """
         Load the boardbank and the wordbank. Boardbank is a set of 
@@ -201,7 +205,6 @@ class Codenames:
         with open(word_bank_file) as f:
             for line in f:
                 self.wordbank.add(line.strip())
-
 
 
     def printGameStats(self):
@@ -228,16 +231,21 @@ class Codenames:
         :param opn_words: set of remaining opponent words
         :param d_words: set of remaining assasin (death) words
         """
+        ret_val = ''
         if (not agent_words and opponent_words and death_words):
             print("\nYou win!")
             self.win += 1
+            ret_val = 'win'
         elif (agent_words and (not opponent_words or not death_words)):
             print("\nYou lose!")
             self.lose += 1
+            ret_val = 'lose'
         else:
             print("\nTie!")
             self.tie += 1
+            ret_val = 'tie'
         print("Number of the turn of this game:", self.turn_records[len(self.turn_records) - 1])
+        return ret_val
 
      
 
@@ -336,52 +344,65 @@ class Codenames:
         self.getGameResult(agent_words, opponent_words, death_words)
 
                 
-    def play_sim(self, reader: Reader, strategy: Strategy, num_sim: int, auto_exit: bool): 
+    def play_sim(self, reader: Reader, sm_strategy: Strategy, ag_strategy: Strategy, 
+            num_sim: int, auto_exit: bool): 
         """
         Play a complete game, with the robot being both the agent and the spymaster.
         :param reader: a Reader object from the Reader class
-        :param strategy: a Strategy object forom the Strategy class
+        :param sm_strategy: Strategy for the spymaster to use
+        :param ag_strategy: Strategy for the agent to use
         :param num_sim: number of gameplays to perform
         :param auto_exit: an option to automatically print out the overall stats and exit the program when all the gameplays are done
         """
 
-        for _ in range(num_sim):
 
-            # Initlize a game
-            words = random.sample(self.boardbank, self.cnt_rows * self.cnt_cols)
-            agent_words, opponent_words, neutral_words, death_words, used_clues = self.initialize_game(
-                words)
-            turn = 0
+        try_sigma = [22, 24, 26, 28, 30] 
+        for sig in try_sigma:
+            sm_strategy.sigma = sig
+            if os.path.exists(os.path.join(self.result_path, sm_strategy.get_id() + '|' + ag_strategy.name + '.csv')):
+                continue
+            stats =  []  
+            for i in range(num_sim):
+                print('TRYING SIGMA: ', sig)
+                print('ITERATION:', i)
+                # Initlize a game
+                words = random.sample(self.boardbank, self.cnt_rows * self.cnt_cols)
+                agent_words, opponent_words, neutral_words, death_words, used_clues = self.initialize_game(
+                    words)
+                turn = 0
 
-            while agent_words and opponent_words and death_words:
-                turn += 1
-                reader.print_stats(agent_words, opponent_words,
-                                neutral_words, death_words, revealing=True)
-                reader.print_words(words, nrows=self.cnt_rows)
-                clue, cnt = strategy.find_clue(
-                    set(words), agent_words, opponent_words, neutral_words, death_words, used_clues)
-                used_clues.add(clue)
-                print()
-                print(
-                'Clue: "{} {}"'.format(
-                    clue, cnt)
-                )
-                print()
+                while agent_words and opponent_words and death_words:
+                    turn += 1
+                    reader.print_stats(agent_words, opponent_words,
+                                    neutral_words, death_words, revealing=True)
+                    reader.print_words(words, nrows=self.cnt_rows)
+                    clue, cnt = sm_strategy.find_clue(
+                        set(words), agent_words, opponent_words, neutral_words, death_words, used_clues)
+                    used_clues.add(clue)
+                    print()
+                    print(
+                    'Clue: "{} {}"'.format(
+                        clue, cnt)
+                    )
+                    print()
 
-                for _ in range(cnt):
-                    guess = strategy.make_guess(
-                        clue, [w for w in words if w not in  {"-O-", "-N-", "-✓-"}])
-                
-                    print("I guess {}!".format(guess))
-                    game_result = reader.checkGuess(guess, words, agent_words, opponent_words, neutral_words, death_words)
-                    if not game_result or not  agent_words:
-                        break
+                    for _ in range(cnt):
+                        guess = ag_strategy.make_guess(
+                            clue, [w for w in words if w not in  {"-O-", "-N-", "-✓-"}])
                     
-            # Game is ended. Determine the winner
-            self.turn_records.append(turn)
-            self.getGameResult(agent_words, opponent_words, death_words)
+                        print("I guess {}!".format(guess))
+                        game_result = reader.checkGuess(guess, words, agent_words, opponent_words, neutral_words, death_words)
+                        if not game_result or not  agent_words:
+                            break
+                        
+                # Game is ended. Determine the winner
+                self.turn_records.append(turn)
+                result = self.getGameResult(agent_words, opponent_words, death_words)
+                stats.append((i, result, turn))
 
             
+            res_df = pd.DataFrame(stats, columns=['Iteration', 'Result', 'Num Turns'])
+            res_df.to_csv(os.path.join(self.result_path, sm_strategy.get_id() + '|' + ag_strategy.name + '.csv'), index=False)
         if auto_exit:
             self.printGameStats()
             exit(0)
@@ -394,7 +415,8 @@ def main():
     cn.load(os.path.join('words', 'board_bank.txt'), os.path.join('words', 'word_bank.txt'))
 
     reader = TerminalReader()
-    strategy = CombinedStrategy()
+    #strategy = CombinedStrategy()
+    strategy = Strategy('d2v_sim.json')
     print("Ready!")
     
     while True:
@@ -418,11 +440,33 @@ def main():
         elif option == 2:
             cn.play_agent(reader, strategy)
         elif option == 3:
+            sim_option = 0
+            print('Possibilities:')
+            print('1. Embedding')
+            print('2. WordNet')
+
+            spy_opt = ""
+            while spy_opt not in set(['Embedding', 'WordNet', '1', '2']):
+                spy_opt = input('Who will be SpyMaster?: ')
+            ag_opt = ""
+            while ag_opt not in set(['Embedding', 'WordNet', '1', '2']):
+                ag_opt = input('Who will be Agent?: ')
+
+            if spy_opt == 'WordNet' or spy_opt == '2':
+                spym = CombinedStrategy()
+            else:
+                spym = Strategy('d2v_sim.json')
+
+            if ag_opt == 'WordNet' or ag_opt == '2':
+                ag = CombinedStrategy()
+            else:
+                ag = Strategy('d2v_sim.json')
+
             value = input("Select number of iterations: ")
             num_iter = int(value.strip())
             value = input("Automatically prints overall stats and exits the program when all the gameplays are done (Y/N): ")
             auto_exit = True if value.strip() == 'Y' else False
-            cn.play_sim(reader, strategy, num_iter, auto_exit)
+            cn.play_sim(reader, spym, ag, num_iter, auto_exit)
         elif option == 4:
             cn.printGameStats()
         else:

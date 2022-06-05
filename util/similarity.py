@@ -6,7 +6,7 @@ from util.cache_writers.cache import CacheWriter
 
 
 class Similarity():
-    def __init__(self, similarity_type: str, cache_file):
+    def __init__(self, cache_file):
         '''
         Given two words, this class provides means to find the similarity between
         them.
@@ -18,7 +18,6 @@ class Similarity():
         self.cache_loc = os.path.join(
             'similarities', cache_file)
         self.sym_map = self.load_map()
-        self.similarity_type = similarity_type
 
     def similarity(self, w1: str, w2: str) -> float:
         '''

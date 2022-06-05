@@ -9,10 +9,12 @@ from util.similarity import Similarity
 
 class Strategy:
 
-    def __init__(self, cache_file):
+    def __init__(self, cache_file=None, name='Embedding', sigma=15):
         """
         :param cache_loc: path to the file where the similarities are stored (ex: ant.json)
         """
+        if cache_file is None:
+            cache_file = 'd2v_sim.json'
         self.sim = Similarity(cache_file)
         # Load the wordbank
         word_bank = os.path.join('words', 'word_bank.txt')
@@ -20,6 +22,14 @@ class Strategy:
             wb_contents = fin.read()
         wbw = re.findall(r'[A-z]+', wb_contents)
         self.wordbank = wbw
+        self.sigma = sigma
+        self.name = name
+
+    def get_id(self):
+        '''
+        Returns a string identifier for this strategy
+        '''
+        return self.name + '_' + str(self.sigma)
 
     def calculate_similarity(self, w1: str, w2: str) -> float:
         """
@@ -68,7 +78,7 @@ class Strategy:
                 d_sim.append(self.calculate_similarity(word, d_word))
 
             score_list = loss(3, a_sim, o_sim,
-                              n_sim, d_sim[0], lambda x: np.exp(10*x))
+                              n_sim, d_sim[0], lambda x: np.exp(self.sigma*x))
             # print(word, score_list)
             current_max = max(score_list)
             max_index = [index for index, item in enumerate(
@@ -90,6 +100,6 @@ class Strategy:
         for word in words:
             sim = self.calculate_similarity(word, clue)
             if sim > max_sim:
-                sim = max_sim
+                max_sim = sim
                 word_chosen = word
         return word_chosen
