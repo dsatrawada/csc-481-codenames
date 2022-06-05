@@ -9,7 +9,7 @@ from util.similarity import Similarity
 
 class Strategy:
 
-    def __init__(self, cache_file=None, name='Embedding', sigma=15):
+    def __init__(self, cache_file=None, name='Embedding', sigma=18):
         """
         :param cache_loc: path to the file where the similarities are stored (ex: ant.json)
         """

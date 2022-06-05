@@ -183,7 +183,7 @@ class Codenames:
         self.wordbank = set()
 
         # Path for results
-        self.result_path = 'results'
+        self.result_path = os.path.join('results', 'sim_results')
 
     def load(self, board_bank_file, word_bank_file):
         """
