@@ -70,7 +70,6 @@ help
 talk
 turn
 problem
-every
 start
 hand
 might
@@ -95,7 +94,6 @@ always
 move
 night
 live
-mr
 point
 believe
 hold
@@ -105,7 +103,6 @@ happen
 next
 large
 million
-must
 home
 water
 room
@@ -249,7 +246,6 @@ policy
 love
 process
 music
-including
 consider
 appear
 actually
@@ -266,7 +262,6 @@ sense
 build
 stay
 fall
-oh
 nation
 plan
 cut
@@ -274,7 +269,6 @@ college
 interest
 death
 course
-someone
 experience
 behind
 reach
@@ -283,7 +277,6 @@ kill
 six
 remain
 effect
-yeah
 suggest
 class
 control
@@ -326,7 +319,6 @@ free
 military
 price
 less
-according
 decision
 explain
 son
@@ -556,7 +548,6 @@ artist
 scene
 stock
 career
-despite
 central
 eight
 thus
@@ -590,7 +581,6 @@ meeting
 determine
 prepare
 disease
-whatever
 success
 argue
 cup
@@ -777,7 +767,6 @@ improve
 stuff
 detail
 method
-somebody
 magazine
 hotel
 soldier
@@ -806,7 +795,6 @@ cancer
 item
 reality
 coach
-mrs
 yard
 beat
 violence
@@ -1017,7 +1005,6 @@ independent
 district
 shape
 reader
-ms
 contract
 crowd
 christian
@@ -1065,7 +1052,6 @@ protection
 settle
 feed
 collect
-additional
 highly
 identity
 title

@@ -80,7 +80,6 @@ class Strategy:
 
             score_list = loss(3, a_sim, o_sim,
                               n_sim, d_sim[0], lambda x: np.exp(self.sigma*x))
-            # print(word, score_list)
             current_max = max(score_list)
             max_index = [index for index, item in enumerate(
                 score_list) if item == current_max][0] + 1
