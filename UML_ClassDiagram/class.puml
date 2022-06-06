@@ -1,0 +1,118 @@
+@startuml
+' Class defenitions
+class CacheWriter
+{
+    -wbw: list[str]
+    -bbw: list[str]
+    -cache_out_path: str
+    +__init__()
+    +gen_id(): str
+    +base_similarity(): float
+    +create_cache(): void
+
+
+}
+class WnCacheWriter{
+    -syn_sim: dict
+    -get_syn_weights(): list[tuple[Synset, float]]
+    + synset_similarity(): float 
+    +base_similarity(): float
+}
+
+class W2VCacheWriter{
+    - w2c(): tuple[dict, set, float]
+}
+
+class HypCacheWriter {
+    + synset_similarity(): float
+}
+
+class MerCacheWriter {
+    + synset_similarity(): float
+
+}
+
+class AntCacheWriter{
+    + base_similarity(): float
+}
+abstract class Strategy {
+    -sim: Similarity
+    -wordbank: list[str]
+    +__init__()
+    + find_clue(): tuple[str, int]
+    + make_guess(): str
+    + calculate_similarity(): float
+}
+class CombinedStrategy {
+    - hyp: Similarity
+    - mer: Similarity
+    - snt: Similarity
+    - wordbank: list[str]
+    +__init__()
+    + calculate_similarity(): float
+}
+class Similarity{
+    -sym_map: dict[str, dict[str, float]]
+    -cache_loc: str
+    +similarity(): float 
+    -load_map(): dict[str, dict[str, float]]
+    -gen_id(): str
+
+    
+}
+
+class Codenames {
+    -reader: Reader
+    -cnt_rows: int
+    -cnt_cols: int
+    -cnt_agents: int
+    -cnt_opponents: int
+    -cnt_neutral: int
+    -cnt_death: int
+    -win: int
+    -lose: int
+    -tie: int
+    -turn_records: list[int]
+    -boardbank: list[str]
+    -wordbank: set[str]
+    +load(): void 
+    +printGameStats(): void 
+    +getGameResult(): void 
+    +initilize_game(): tuple[set(word),...]
+    +play_spymaster(): void 
+    +play_agent(): void
+    +play_sim(): void
+
+
+}
+
+class Reader{
+    + read_picks(): void
+    + print_words(): void
+    + print_stats(): void
+    + read_clues(): tuple[str, int]
+    + checkGuess(): bool
+
+}
+
+class TerminalReader{
+    + read_picks(): void
+    + print_words(): void
+    + print_stats(): void
+    + read_clues(): tuple[str, int]
+    + checkGuess(): bool
+
+}
+
+' Class relationship
+Strategy <|--- CombinedStrategy
+Strategy *-- Similarity
+CombinedStrategy *-- Similarity
+CacheWriter<|---WnCacheWriter
+CacheWriter<|---W2VCacheWriter
+WnCacheWriter<|--- HypCacheWriter
+WnCacheWriter<|--- MerCacheWriter
+CacheWriter<|---AntCacheWriter
+Reader <|---  TerminalReader
+Codenames *-- Reader
+@enduml

@@ -54,6 +54,7 @@ class Strategy:
         :return: (The best clue, the words we expect to be guessed)
         """
         print("Thinking...")
+       
         max_score = (None, float('inf') * -1,
                      float('-inf') * -1)  # (Word, Optimal Loss Score, # of guesses to be used)
         # n = 0

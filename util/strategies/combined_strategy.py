@@ -14,7 +14,7 @@ class CombinedStrategy(Strategy):
     by examining meronym/holonym, hypernym/hyponym, and antonym relationships. 
     """
 
-    def __init__(self, name='WordNet', sigma=10):
+    def __init__(self, name='WordNet', sigma=6):
         super(CombinedStrategy, self).__init__(name=name, sigma=sigma)
         self.hyp = Similarity("hyp.json")
         self.mer = Similarity("mer_holo.json")
@@ -27,5 +27,6 @@ class CombinedStrategy(Strategy):
         self.wordbank = wbw
 
     def calculate_similarity(self, w1, w2):
+        
         return max(self.hyp.similarity(w1, w2), self.mer.similarity(
             w1, w2), self.ant.similarity(w1, w2))
