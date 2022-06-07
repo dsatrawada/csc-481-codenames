@@ -28,7 +28,7 @@ from nltk.corpus import wordnet as wn
 nltk.download('wordnet')
 ```
 
-In our project, we use a set of [400 English words](https://github.com/divyakoyy/codenames/blob/master/data/codewords.txt) to generate the game board. Then, we use a set of [10,000 Most Common English words](https://gist.github.com/deekayen/4148741) to give out clues. We filter out stopwords in our 10,000 word set to improve clues. 
+In our project, we use a set of [400 English words](https://github.com/divyakoyy/codenames/blob/master/data/codewords.txt) to generate the game board. Then, we use a set of [4000 Most Common English words]([https://gist.github.com/deekayen/4148741](https://github.com/pkLazer/password_rank/blob/master/4000-most-common-english-words-csv.csv) to give out clues. We filter out stopwords in our 10,000 word set to improve clues. 
 
 ## Running Instruction
 ### Option Selection
@@ -164,7 +164,6 @@ You can see that the user has some flexibility when running the agent pair simul
 
 We ran a twin trial for both the Wordnet and Embedding spymaster, but these results were overwritten in one of our merges. We also lost some functionality that plots the results in the merge. However, the results are given in the report that accompanies this repository. They can be reproduced by setting the spymaster and guesser to be the same agent in the simulation. The Embedding spymaster should win some if not all of its games, and the Wordnet Spymaster should win just about half of its games.
 
-In this 
 
 ## Principle Results
 To evaulate the performance of the bot, we ran:
@@ -182,12 +181,3 @@ To evaulate the performance of the bot, we ran:
 - Embedding twins win every or almost every time, and Wordnet twins win about half of the time.
 - Humans playing with humans are better than hummans guessing for agent spymasters.
 - Wordnet spymasters and Embedding spymasters produced similar results to eachother, but it is more fun to play against embedding spymasters. 
-
-
-
-
-
-
-
-
-
