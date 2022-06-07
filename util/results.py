@@ -16,7 +16,7 @@ def parse_name(filename):
     Only has to handle the part of the filename
     before the extention
     '''
-    no_ext = filename.split('|')
+    no_ext = filename.split(';')
     spy = no_ext[0]
     spy_toks = spy.split('_')
     spy_name = spy_toks[0]
