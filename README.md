@@ -14,12 +14,13 @@ Our simulation requires thrid-party Python packages that can be installed using 
 | --- | --- |
 |Numpy| `pip install numpy`|
 |Pandas| `pip install pandas`|
+|Tqdm| `pip install tqdm`|
 
 
 ### External Resources
 Our project extends the pre-existing Codenames Simulation from this [Github Repository](https://github.com/thomasahle/codenames). Our modifications involved adding different gameplay scenarios and incorporating word similarities cached from Wordnet Database and Dict2Vect. We also implemented a more intuitive UI for the user to easily keep track of the game states, their scores, and other statistics. 
 
-To pull the word similarities from Wordnet databases, we used the WordNet corpus reader from the `NLTK` library. Since we already cached all the word similarities to different `JSON` files in the `similarities` directory, installing the `NLTK` library is unnecessary to run the simulation. However, if we wish to install this library to verify the functionality of caching modules, we can do so by calling `pip install nltk`. Then, in a separate Python file, run:
+To pull the word similarities from Wordnet databases, we used the WordNet corpus reader from the `NLTK` library. Since we already cached all the word similarities to different `JSON` files in the `similarities` directory, installing the `NLTK` library is unnecessary to run the simulation. However, if you wish to install this library to verify the functionality of caching modules, you can do so by calling `pip install nltk`. Then, in a separate Python file, run:
 ```
 import nltk
 from nltk.corpus import wordnet as wn
@@ -27,7 +28,7 @@ from nltk.corpus import wordnet as wn
 nltk.download('wordnet')
 ```
 
-In our project, we use a set of [400 English words](https://github.com/divyakoyy/codenames/blob/master/data/codewords.txt) to generate the game board. Then, we use a set of [10,000 Most Common English words](https://gist.github.com/deekayen/4148741) to give out clues. For making sure that our two word sets are compatible with one another, we filtered out any words in the set of 400 words that does not appear in the set of 10,000 most common English word. At the same time, we also filter out stopwords in our 10,000 word set to improve performance. 
+In our project, we use a set of [400 English words](https://github.com/divyakoyy/codenames/blob/master/data/codewords.txt) to generate the game board. Then, we use a set of [10,000 Most Common English words](https://gist.github.com/deekayen/4148741) to give out clues. We filter out stopwords in our 10,000 word set to improve clues. 
 
 ## Running Instruction
 ### Option Selection
@@ -134,23 +135,53 @@ Correct!
 ```
 
 #### Option 3 -  Simulate a series of gameplays where a robot being both agent and the spymaster
-In this option, one bot will make a clue, and another bot will make a guess. Same with optiob 2, the bot cannot pass to next turn like a human agent. 
+In this option, one bot will make a clue, and another bot will make a guess. Same with optiob 2, the bot cannot pass to next turn like a human agent. We use this option mainly for evaluation. For this reason, we have a setting that allows us to tune our main hyperparameter, sigma. The simulator plays games at each value for sigma for the specified number of iterations. This setting is only configurable by editing the source code by editing the `try_sigma` list in the `play_sim` function of `codenames_sim.py`. Running a simulation will automatically save results to the results/sim_results directory. We produce plots for these results by running the file results.py in the util directory. Specifically, navigate to the util directory and run `python3 results.py`. These results take some time to produce. The results of our previous simulations are in the [results](https://github.com/dsatrawada/csc-481-codenames/tree/main/results) folder. 
+```
+...Loading codenames
+Ready!
+----------------------------------------------------------------------------------
+Codenames Simulation
+----------------------------------------------------------------------------------
+1. Play a game with a robot being the spymaster
+2. Play a game with a robot being the agent
+3. Simulate a series of gameplays where a robot being both agent and the spymaster
+4. Get overall stats
+5. Exit
+----------------------------------------------------------------------------------
+Select an option: 3
+Possibilities:
+1. Embedding
+2. WordNet
+Who will be SpyMaster?: 1
+Who will be Agent?: 2
+Select number of iterations: 15
+Automatically prints overall stats and exits the program when all the gameplays are done (Y/N): Y
+TRYING SIGMA:  22
+ITERATION: 0
+```
 
+You can see that the user has some flexibility when running the agent pair simulations. The user can select the type of agent that will be the spymaster, and the type of agent that will be the guesser (agent in the UI). The user can also specify the number of iterations to run for each value of sigma. A file will be written to the results directory for each value of sigma (specified in codenames.py). 
 
-## Running Validations and Collect Data
+We ran a twin trial for both the Wordnet and Embedding spymaster, but these results were overwritten in one of our merges. We also lost some functionality that plots the results in the merge. However, the results are given in the report that accompanies this repository. They can be reproduced by setting the spymaster and guesser to be the same agent in the simulation. The Embedding spymaster should win some if not all of its games, and the Wordnet Spymaster should win just about half of its games.
+
+In this 
+
+## Principle Results
 To evaulate the performance of the bot, we ran:
-1. 20 games of WordNet spymaster versus Human agent 
-2. 20 games of Embedding Spymaster versus Human agent
-3. 30 games of Embedding Spymaster versus Wordnet agent
-4. 30 games of Wordnet Spymaster versus Embedding agent
-5. 20 games of Human Spymaster versus Human agent (for benchmark)
+1. 225 games of Embedding spymaster and Wordnet guesser. 
+2. 225 games of Wordnet spymaster and Embedding guesser.
+3. 15 games of Embedding spymmaster and Embedding guesser (Not in repository ~15 min runtime).
+4. 15 games of Wordnet Spymaster versus Wordnet guesser (Not in repository ~30 min runtime).
+5. 10 games of Embedding spymaster and human guesser. (Not in repository)
+6. 10 games of Wordnet spymaster and human guesser. (Not in repository)
+7. 10 games of Human spymaster and human guesser. (Not in Repository)
+8. 20 games of Human Spymaster versus Human agent (for benchmark)
 
-
-For task 1 and 2, we simply run the simulation with option 1 20 times for each bot. After each game, the simulation will output who is the winner and the total number of turns of that game. We collect those data to put in the report. The summary result is located at  **TO-DO** for task 1, and  **TO-DO** for task 2.
-
-For task 4, we simply play games on paper and collect the result. The summary result is located at **TO-DO**
-
-For task 2, and 3 , we **TO-DO**
+### Conclusions
+- Embedding spymaster and Wordnet guesser is worse than Wordnet Spymaster and Embedding Guesser.
+- Embedding twins win every or almost every time, and Wordnet twins win about half of the time.
+- Humans playing with humans are better than hummans guessing for agent spymasters.
+- Wordnet spymasters and Embedding spymasters produced similar results to eachother, but it is more fun to play against embedding spymasters. 
 
 
 
