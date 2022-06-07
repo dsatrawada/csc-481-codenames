@@ -4,7 +4,7 @@
 #### CSC 481-01  - Knowledge Based Systems - Spring 2022 - Cal Poly
 #### Professor Rodrigo Canaan 
 #### Team Members: Divya Satrawada, Mansi Achuthan, Nam Nguyen, Kyle Thompson
-
+#### [Link To Final Report](https://docs.google.com/document/d/1ift5D4DX9GdbfxECqmddA_PmytxKsOGky8njltGdmHM/edit?usp=sharing)
 
 ## External Libraries/Resources
 ### Libraries
