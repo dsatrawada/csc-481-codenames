@@ -28,7 +28,7 @@ from nltk.corpus import wordnet as wn
 nltk.download('wordnet')
 ```
 
-In our project, we use a set of [400 English words](https://github.com/divyakoyy/codenames/blob/master/data/codewords.txt) to generate the game board. Then, we use a set of [4000 Most Common English words](https://gist.github.com/deekayen/4148741](https://github.com/pkLazer/password_rank/blob/master/4000-most-common-english-words-csv.csv) to give out clues. We filter out stopwords in our 10,000 word set to improve clues. 
+In our project, we use a set of [400 English words](https://github.com/divyakoyy/codenames/blob/master/data/codewords.txt) to generate the game board. Then, we use a set of [4000 Most Common English words](https://github.com/pkLazer/password_rank/blob/master/4000-most-common-english-words-csv.csv) to give out clues. We filter out stopwords in our 10,000 word set to improve clues. 
 
 ## Running Instruction
 ### Option Selection
